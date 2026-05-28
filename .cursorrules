@@ -1,0 +1,136 @@
+################################################################################
+project:
+  name: "MagicSquare"
+  domain: "4x4 매직스퀘어 생성 및 검증"
+  language: "Python"
+  goal: "ECB 아키텍처와 Dual-Track TDD를 기반으로 유지보수 가능한 구현을 지속한다."
+
+################################################################################
+code_style:
+  python_version: "3.10+"
+  style_guide: "PEP8 엄격 준수"
+  type_hints: "모든 함수 파라미터와 반환값에 필수"
+  docstring: "Google 스타일, 모든 public 메서드에 필수"
+  max_line_length: 88
+
+################################################################################
+architecture:
+  pattern: "ECB (Boundary-Control-Entity)"
+  layers:
+    boundary:
+      responsibility:
+        - "외부 입출력 담당 (UI, API, CLI)"
+        - "요청/응답 포맷 변환"
+        - "Control 레이어 호출"
+    control:
+      responsibility:
+        - "비즈니스 로직 담당"
+        - "유스케이스 오케스트레이션"
+        - "Entity 규칙 조합 및 흐름 제어"
+    entity:
+      responsibility:
+        - "도메인 데이터 및 규칙 담당"
+        - "매직스퀘어 불변조건/검증 규칙 보유"
+        - "외부 시스템 의존성 없음"
+  dependency_direction:
+    allowed:
+      - "boundary -> control"
+      - "control -> entity"
+    forbidden:
+      - "boundary -> entity 직접 호출 금지"
+      - "entity -> control 의존 금지"
+      - "entity -> boundary 의존 금지"
+      - "control -> boundary 역의존 금지"
+
+################################################################################
+tdd_rules:
+  red_phase:
+    description: "요구사항을 검증하는 실패 테스트를 먼저 작성하는 단계"
+    rules:
+      - "구현 전에 테스트부터 작성한다."
+      - "테스트 실패 원인이 요구 기능 미구현임을 확인한다."
+      - "실패 메시지가 요구사항을 명확히 설명해야 한다."
+    must_not:
+      - "테스트 작성 전에 프로덕션 코드를 먼저 작성하지 않는다."
+      - "실패 확인 없이 다음 단계로 넘어가지 않는다."
+      - "테스트를 통과시키기 위해 기대값을 임의로 완화하지 않는다."
+  green_phase:
+    description: "실패 테스트를 통과시키기 위한 최소 코드만 작성하는 단계"
+    rules:
+      - "테스트를 통과시키는 최소 변경만 적용한다."
+      - "중복이나 구조 문제는 기록만 하고 리팩터링은 다음 단계로 미룬다."
+      - "새로운 기능 확장은 현재 테스트 범위 밖이면 추가하지 않는다."
+    must_not:
+      - "리팩터링을 수행하지 않는다."
+      - "미래 요구사항을 선반영하지 않는다."
+      - "테스트를 삭제/완화하여 통과시키지 않는다."
+  refactor_phase:
+    description: "외부 동작 변경 없이 내부 구조를 개선하는 단계"
+    rules:
+      - "모든 테스트가 계속 통과해야 한다."
+      - "가독성, 중복 제거, 모듈 경계 개선에 집중한다."
+      - "커버리지는 유지하거나 개선한다."
+    must_not:
+      - "기능 동작을 변경하지 않는다."
+      - "레이어 경계를 깨는 의존성 추가를 하지 않는다."
+      - "테스트 커버리지를 낮추지 않는다."
+
+################################################################################
+testing:
+  framework: "pytest"
+  pattern: "AAA (Arrange-Act-Assert)"
+  coverage_minimum: "80%"
+  fixture_scope:
+    default: "function"
+    rules:
+      - "상태 공유가 없으면 function scope 사용"
+      - "비용이 큰 초기화만 module/session scope 검토"
+      - "scope 확장 시 테스트 독립성 영향 검토 필수"
+  naming_convention: "모든 테스트 함수는 test_ 접두사 필수"
+
+################################################################################
+forbidden:
+  - pattern: "print()"
+    reason: "디버그 출력이 테스트 로그를 오염시키고 운영 코드 품질을 저하시킨다."
+    alternative: "logging 모듈(레벨 기반) 또는 pytest caplog 사용"
+  - pattern: "하드코딩 상수"
+    reason: "도메인 규칙 변경 시 수정 누락과 중복을 유발한다."
+    alternative: "entity 상수/설정 객체/명명된 상수로 중앙 관리"
+  - pattern: "except: (bare except)"
+    reason: "예외 원인을 숨겨 디버깅과 장애 분석을 어렵게 만든다."
+    alternative: "구체 예외 타입 명시 및 예외 체이닝(raise ... from ...)"
+
+################################################################################
+file_structure:
+  # MagicSquare ECB 권장 구조
+  # magic_square/
+  # ├─ boundary/   # UI/API/CLI, 입출력 어댑터
+  # ├─ control/    # 유스케이스/흐름 제어
+  # ├─ entity/     # 도메인 모델/규칙/검증
+  # └─ tests/
+  #    ├─ boundary/
+  #    ├─ control/
+  #    └─ entity/
+  root_package: "magic_square"
+  required_directories:
+    - "boundary/"
+    - "control/"
+    - "entity/"
+    - "tests/"
+
+################################################################################
+ai_behavior:
+  before_coding:
+    - "코드 작성 전 관련 테스트 파일(또는 생성 대상 테스트 파일)을 먼저 확인한다."
+    - "요구사항을 ECB 레이어 책임으로 분해한 뒤 구현 위치를 결정한다."
+  during_coding:
+    - "ECB 레이어 경계 위반 코드를 생성하지 않는다."
+    - "타입힌트 없는 함수는 생성하지 않는다."
+    - "TDD 단계(RED/GREEN/REFACTOR)에 맞는 변경만 수행한다."
+  after_coding:
+    - "pytest 실행 가능 상태를 유지하고 실패 원인을 숨기지 않는다."
+    - "레이어 의존성 방향 위반 여부를 점검한다."
+    - "타입힌트/문서화/스타일 규칙 준수 여부를 점검한다."
+  tdd_violation_policy:
+    - "tdd_rules 위반이 감지되면 경고를 출력한다."
+    - "위반 상태에서는 구현 진행 대신 RED 단계 복귀를 우선 제안한다."
