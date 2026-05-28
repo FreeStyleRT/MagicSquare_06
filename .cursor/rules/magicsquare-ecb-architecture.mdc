@@ -1,0 +1,46 @@
+---
+description: MagicSquare ECB 레이어 책임과 의존성 방향 규칙
+alwaysApply: true
+---
+
+# MagicSquare ECB Architecture Rules
+
+## 아키텍처 원칙
+- 패턴은 ECB(Boundary-Control-Entity)를 사용한다.
+- 각 레이어는 고유 책임만 수행한다.
+- 레이어 경계 위반은 기능 동작과 무관해도 결함으로 취급한다.
+
+## 레이어 책임
+- Boundary
+  - 외부 입출력(UI, API, CLI) 담당
+  - 요청/응답 포맷 변환
+  - Control 레이어 호출
+- Control
+  - 비즈니스 로직 담당
+  - 유스케이스 오케스트레이션
+  - Entity 규칙 조합 및 흐름 제어
+- Entity
+  - 도메인 데이터 및 규칙 담당
+  - 매직스퀘어 불변조건/검증 규칙 보유
+  - 외부 시스템 의존성 없음
+
+## 의존성 방향
+- 허용:
+  - `boundary -> control`
+  - `control -> entity`
+- 금지:
+  - `boundary -> entity` 직접 호출
+  - `entity -> control` 의존
+  - `entity -> boundary` 의존
+  - `control -> boundary` 역의존
+
+## 구현 시 강제 기준
+- 레이어 경계를 넘는 직접 참조를 생성하지 않는다.
+- Entity는 순수 도메인 계층으로 유지한다.
+- Control은 입출력 포맷 세부사항을 직접 처리하지 않는다.
+- Boundary는 비즈니스 규칙 계산을 직접 수행하지 않는다.
+- 경계 위반 감지 시 구조 수정이 기능 추가보다 우선이다.
+
+## 적용 예시(짧게)
+- CLI 입력값 검증 결과를 Boundary에서 정리하고 Control 유스케이스만 호출한다.
+- 도메인 검증 로직은 Entity에 두고 Boundary에서 직접 계산하지 않는다.
