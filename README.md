@@ -1,7 +1,21 @@
 # 4×4 Magic Square — 문제 정의 프로젝트
 
+[![Repository](https://img.shields.io/badge/GitHub-MagicSquare__16-blue)](https://github.com/FreeStyleRT/MagicSquare_16)
+
 4×4 마방진 프로그램을 만들기 **전에**, 문제를 관찰·분석·정의한 워크숍 산출물 모음입니다.  
 현재 단계는 **문제 인식·정의(STEP 1~5)** 이며, 설계·구현·테스트 코드는 포함하지 않습니다.
+
+---
+
+## 빠른 시작
+
+```bash
+git clone https://github.com/FreeStyleRT/MagicSquare_16.git
+cd MagicSquare_16
+```
+
+1. [Report/01.MagicSquare-Problem-Definition-Report.md](Report/01.MagicSquare-Problem-Definition-Report.md) — Executive Summary부터 STEP 5까지 읽기  
+2. [Prompting/01.MagicSquare-Problem-Definition-Prompt.md](Prompting/01.MagicSquare-Problem-Definition-Prompt.md) — Cursor에서 워크숍 재현·STEP 6 이어가기  
 
 ---
 
@@ -31,13 +45,16 @@
 
 ## 저장소 구조
 
+저장소 루트 = 프로젝트 루트 (`MagicSquare_16` 클론 디렉터리).
+
 ```
-c:\DEV\
+MagicSquare_16/
 ├── README.md                                          ← 이 파일
+├── .gitignore
 ├── Report/
 │   └── 01.MagicSquare-Problem-Definition-Report.md   ← STEP 1~5 통합 보고서
 └── Prompting/
-    └── 01.MagicSquare-Problem-Definition-Prompt.md   ← 대화 전체 Export (재현·이어가기)
+    └── 01.MagicSquare-Problem-Definition-Prompt.md     ← 대화 Export (재현·이어가기)
 ```
 
 ### 문서 안내
@@ -45,7 +62,7 @@ c:\DEV\
 | 파일 | 용도 |
 |------|------|
 | [Report/01.MagicSquare-Problem-Definition-Report.md](Report/01.MagicSquare-Problem-Definition-Report.md) | Executive Summary, STEP별 요약, Invariant, 표면 vs 개선 대조 |
-| [Prompting/01.MagicSquare-Problem-Definition-Prompt.md](Prompting/01.MagicSquare-Problem-Definition-Prompt.md) | Cursor에서 Export한 **대화형 transcript** — 동일 워크숍 재실행·STEP 6 프롬프트 참고 |
+| [Prompting/01.MagicSquare-Problem-Definition-Prompt.md](Prompting/01.MagicSquare-Problem-Definition-Prompt.md) | Cursor Export **대화형 transcript** — 동일 워크숍 재실행·STEP 6 참고 |
 
 ---
 
@@ -106,10 +123,22 @@ c:\DEV\
 
 ---
 
+## 로컬 작업 경로
+
+| 환경 | 권장 경로 |
+|------|-----------|
+| Windows (예시) | `c:\DEV\MagicSquare_16` |
+| 클론 후 | 저장소 루트 디렉터리 |
+
+Git 작업은 **이 폴더를 루트**로 합니다 (`README.md`가 있는 위치).
+
+---
+
 ## 메타 정보
 
 | 항목 | 값 |
 |------|-----|
+| 저장소 | [FreeStyleRT/MagicSquare_16](https://github.com/FreeStyleRT/MagicSquare_16) |
 | 작성일 | 2026-05-28 |
 | 문제 정의 범위 | STEP 1 ~ STEP 5 |
 | 도메인 | 4×4 Magic Square (1~16, 행·열·대각선 합 동일) |
