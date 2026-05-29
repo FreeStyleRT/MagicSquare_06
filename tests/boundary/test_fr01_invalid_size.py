@@ -47,8 +47,22 @@ class TestInvalidSizeBoundaryValues:
                 "three_by_four",
                 [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
             ),
+            (
+                "four_by_three",
+                [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+            ),
+            (
+                "five_by_five",
+                [[1, 2, 3, 4, 5] for _ in range(5)],
+            ),
         ],
-        ids=["empty_list", "four_rows_zero_cols", "three_by_four"],
+        ids=[
+            "empty_list",
+            "four_rows_zero_cols",
+            "three_by_four",
+            "four_by_three",
+            "five_by_five",
+        ],
     )
     def test_invalid_size_grid_returns_failure(
         self,
@@ -134,8 +148,113 @@ class TestInvalidSizeScopeLimit:
         # When: comparing against out-of-scope valid 4x4 fixture
         # Then: valid 4x4 is not part of AC-FR01-01 RED inputs
         assert OUT_OF_SCOPE_VALID_4X4 not in registered_grids
-        assert len(registered_grids) == 4
+        assert len(registered_grids) == 6
         assert all(
-            key in {"none", "empty", "four_rows_zero_columns", "three_by_four"}
+            key
+            in {
+                "none",
+                "empty",
+                "four_rows_zero_columns",
+                "three_by_four",
+                "four_by_three",
+                "five_by_five",
+            }
             for key in AC_FR01_01_INVALID_SIZE_GRIDS
         )
+
+
+class TestInvalidSizeNoExceptionPropagation:
+    """EX-01 — BV-01~06 each returns FailureResponse without raising."""
+
+    @pytest.mark.parametrize(
+        ("grid_key", "grid"),
+        list(AC_FR01_01_INVALID_SIZE_GRIDS.items()),
+        ids=list(AC_FR01_01_INVALID_SIZE_GRIDS.keys()),
+    )
+    def test_boundary_values_never_raise(
+        self,
+        grid_key: str,
+        grid: Any,
+    ) -> None:
+        # EX-01
+        validator = BoundaryValidator()
+
+        result = validator.validate(grid)
+
+        assert result.code == INVALID_SIZE_CODE
+        assert result.message == INVALID_SIZE_MESSAGE
+
+
+class TestInvalidSizeDeterminism:
+    """EX-02 — identical invalid grid yields identical failure contract."""
+
+    def test_same_invalid_grid_returns_identical_failure_twice(self) -> None:
+        # EX-02
+        grid = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        validator = BoundaryValidator()
+
+        first = validator.validate(grid)
+        second = validator.validate(grid)
+
+        assert first.code == second.code == INVALID_SIZE_CODE
+        assert first.message == second.message == INVALID_SIZE_MESSAGE
+
+
+class TestInvalidSizeNonListDefensive:
+    """EX-03 — non-list grid types return INVALID_SIZE defensively."""
+
+    @pytest.mark.parametrize(
+        "grid",
+        ["invalid", 4, {}],
+        ids=["string", "int", "dict"],
+    )
+    def test_non_list_grid_returns_invalid_size(self, grid: Any) -> None:
+        # EX-03
+        validator = BoundaryValidator()
+
+        result = validator.validate(grid)
+
+        assert result.code == INVALID_SIZE_CODE
+        assert result.message == INVALID_SIZE_MESSAGE
+
+
+class TestInvalidSizeUnevenRowLengths:
+    """EX-04 — per-row column length check rejects uneven rows."""
+
+    def test_uneven_row_lengths_returns_invalid_size(self) -> None:
+        # EX-04
+        grid = [[1, 2, 3, 4], [1, 2], [1, 2, 3, 4], [1, 2, 3, 4]]
+        validator = BoundaryValidator()
+
+        result = validator.validate(grid)
+
+        assert result.code == INVALID_SIZE_CODE
+        assert result.message == INVALID_SIZE_MESSAGE
+
+
+class TestInvalidSizeNoneRowElement:
+    """EX-05 — None row element fails isinstance(row, list) check."""
+
+    def test_none_row_element_returns_invalid_size(self) -> None:
+        # EX-05
+        grid: list[Any] = [[1, 2, 3, 4], None, [1, 2, 3, 4], [1, 2, 3, 4]]
+        validator = BoundaryValidator()
+
+        result = validator.validate(grid)
+
+        assert result.code == INVALID_SIZE_CODE
+        assert result.message == INVALID_SIZE_MESSAGE
+
+
+class TestInvalidSizeInputImmutability:
+    """EX-06 — validate does not mutate the caller's grid."""
+
+    def test_validate_does_not_mutate_input_grid(self) -> None:
+        # EX-06
+        grid = [[1, 2, 3, 4], [1, 2], [1, 2, 3, 4], [1, 2, 3, 4]]
+        expected = [[1, 2, 3, 4], [1, 2], [1, 2, 3, 4], [1, 2, 3, 4]]
+        validator = BoundaryValidator()
+
+        validator.validate(grid)
+
+        assert grid == expected
