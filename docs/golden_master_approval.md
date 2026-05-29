@@ -7,7 +7,8 @@
 | **기준 파일** | `tests/golden_master_expected.txt` |
 | **캡처 방식** | `ResolveUseCase.execute()` → Result DTO serialize |
 | **생성 스크립트** | `scripts/generate_golden_master.py` |
-| **pytest 진입점** | `tests/boundary/test_golden_master.py` |
+| **pytest 진입점 (GM-2)** | `tests/boundary/test_golden_master_magic_square.py` |
+| **pytest 마커** | `@pytest.mark.golden_master` |
 
 ---
 
@@ -57,7 +58,28 @@ ERROR_CODE
 
 ---
 
-## 4. Approve 패턴
+## 4. GM-2 테스트 케이스
+
+| Test ID | Section | 검증 |
+|---|---|---|
+| GM-TC-01 | `normal_success` | golden section + `int[6]`·1-index·row-major·조합 성공 |
+| GM-TC-02 | `reverse_success` | golden section + reverse fallback (attempt 1 실패, 2 성공) |
+| GM-TC-03 | `invalid_blank_count` | golden section + `INVALID_BLANK_COUNT` Error Contract |
+| GM-TC-04 | `duplicate_number` | golden section + `DUPLICATE_NON_ZERO` Error Contract |
+| GM-TC-05 | `no_valid_solution` | golden section + `NO_VALID_SOLUTION` (NO_VALID_MAGIC_SQUARE) |
+
+실행:
+
+```bash
+pytest -m golden_master -v
+pytest -m golden_master --golden-approve -v
+```
+
+불일치 시 `difflib.unified_diff`로 `--- expected` / `+++ actual` / `@@` hunk이 AssertionError에 포함된다.
+
+---
+
+## 5. Approve 패턴
 
 ```mermaid
 flowchart TD
@@ -70,31 +92,34 @@ flowchart TD
     E -->|No| G[unified diff 출력 후 FAIL]
 ```
 
-### 4.1 기준 파일 없음
+### 5.1 기준 파일 없음
 
 - pytest 또는 생성 스크립트가 **현재 Solver 출력**으로 `tests/golden_master_expected.txt`를 자동 생성한다.
 
-### 4.2 기준 파일 있음 (일반 모드)
+### 5.2 기준 파일 있음 (일반 모드)
 
 - `build_golden_document()`로 전체 actual 문서를 조립한다.
 - committed baseline과 **문자 단위** 비교한다.
 - 불일치 시 `difflib.unified_diff` 결과를 AssertionError/pytest.fail에 포함한다.
 
-### 4.3 Approve 모드
+### 5.3 Approve 모드
 
 의도된 출력 변경 시 baseline을 갱신한다.
 
 ```bash
 # pytest
-pytest tests/boundary/test_golden_master.py --golden-approve
+pytest -m golden_master --golden-approve
 
-# standalone script
-python scripts/generate_golden_master.py --approve
+# standalone script (baseline refresh)
+python scripts/generate_golden_master.py
+
+# compare only (CI / local gate)
+python scripts/generate_golden_master.py --check
 ```
 
 ---
 
-## 5. 캡처 파이프라인
+## 6. 캡처 파이프라인
 
 ```
 GoldenScenario.grid
@@ -113,42 +138,53 @@ GoldenScenario.grid
 |---|---|
 | `capture_resolve_output` | 단일 시나리오 DTO serialize |
 | `build_golden_document` | 전체 기준 문서 조립 |
-| `assert_golden_master` | approve / compare 분기 |
+| `assert_golden_master` | 전체 문서 approve / compare |
+| `assert_golden_section` | 시나리오 단위 approve / compare |
+| `assert_scenario_output_contract` | int[6]·row-major·reverse·Error Contract |
 | `unified_diff` | 불일치 diff 생성 |
 
 ---
 
-## 6. 운영 절차
+## 7. 운영 절차
 
-### 6.1 최초 baseline 생성 (현재 출력 기반)
+### 7.1 최초 baseline 생성 (현재 출력 기반)
 
 ```bash
-python scripts/generate_golden_master.py --approve
+python scripts/generate_golden_master.py
 git add tests/golden_master_expected.txt
 ```
 
-### 6.2 회귀 검증 (CI / 로컬)
+### 7.2 회귀 검증 (CI / 로컬)
 
 ```bash
-pytest tests/boundary/test_golden_master.py
-python scripts/generate_golden_master.py
+pytest -m golden_master -v
+python scripts/generate_golden_master.py --check
 ```
 
-### 6.3 계약 변경 후 재승인
+### 7.3 계약 변경 후 재승인
 
 1. Solver/검증 구현 변경
-2. `pytest ... --golden-approve` 또는 `generate_golden_master.py --approve`
+2. `pytest ... --golden-approve` 또는 `python scripts/generate_golden_master.py`
 3. diff 검토 후 commit
 
-### 6.4 현재 출력 미리보기
+---
 
-```bash
-python scripts/generate_golden_master.py --print
+## 8. 실행 결과 예시 (GM-2 GREEN)
+
+```text
+$ python -m pytest -m golden_master -v
+tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-01] PASSED
+tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-02] PASSED
+tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-03] PASSED
+tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-04] PASSED
+tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-05] PASSED
+tests/boundary/test_golden_master_magic_square.py::test_golden_master_document_matches_baseline PASSED
+============================== 6 passed ==============================
 ```
 
 ---
 
-## 7. 현재 baseline (Solver 실출력, GM-1 GREEN)
+## 9. 현재 baseline (Solver 실출력, GM-1 GREEN)
 
 | 시나리오 | committed baseline |
 |---|---|
@@ -158,16 +194,17 @@ python scripts/generate_golden_master.py --print
 | `duplicate_number` | `Error: DUPLICATE_NON_ZERO` |
 | `no_valid_solution` | `Error: NO_VALID_SOLUTION` |
 
-`pytest tests/boundary/test_golden_master.py` 및 `python scripts/generate_golden_master.py`가 PASS한다.  
-출력 변경 시 `--golden-approve` 또는 `--approve`로 baseline을 재생성한 뒤 diff를 검토해 commit한다.
+`pytest -m golden_master` 및 `python scripts/generate_golden_master.py --check`가 PASS한다.  
+출력 변경 시 `pytest --golden-approve` 또는 `python scripts/generate_golden_master.py`로 baseline을 재생성한 뒤 diff를 검토해 commit한다.
 
 ---
 
-## 8. 추적성
+## 10. 추적성
 
 | 요구 | 구현 |
 |---|---|
 | GM-1 기준 파일 | `tests/golden_master_expected.txt` |
-| approve 패턴 | `assert_golden_master`, `--golden-approve` |
+| GM-2 테스트 | `tests/boundary/test_golden_master_magic_square.py` |
+| approve 패턴 | `assert_golden_master`, `assert_golden_section`, `--golden-approve` |
 | 생성 스크립트 | `scripts/generate_golden_master.py` |
 | 시나리오 레지스트리 | `tests/helpers/golden_scenarios.py` |
