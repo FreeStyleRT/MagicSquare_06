@@ -40,6 +40,8 @@ AC_FR01_01_INVALID_SIZE_GRIDS: dict[str, Any] = {
     "empty": [],
     "four_rows_zero_columns": [[]] * 4,
     "three_by_four": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+    "four_by_three": [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+    "five_by_five": [[1, 2, 3, 4, 5] for _ in range(5)],
 }
 
 # Explicitly out of scope for this RED commit (AC-FR01-02~05, FR-02~05).

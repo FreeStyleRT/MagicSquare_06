@@ -110,8 +110,8 @@ pytest tests/ -k "none" -v
 - [x] **G-08** (TC-02 / BV-02 / TC-A-05): `grid=[]` — `len(grid) != 4` 분기
 - [x] **G-09** (TC-03 / BV-03): `grid=[[]]*4` — 행별 `len(row) != 4` 분기
 - [x] **G-10** (TC-04 / BV-04 / TC-A-06): 3×4 — 행 수 ≠ 4 분기
-- [ ] **G-11** (TC-05 / BV-05): 4×3 — RED 테스트 추가 후 `INVALID_SIZE` GREEN
-- [ ] **G-12** (TC-06 / BV-06): 5×5 — RED 테스트 추가 후 행·열 초과 분기 GREEN
+- [x] **G-11** (TC-05 / BV-05): 4×3 — RED 테스트 추가 후 `INVALID_SIZE` GREEN
+- [x] **G-12** (TC-06 / BV-06): 5×5 — RED 테스트 추가 후 행·열 초과 분기 GREEN
 
 **Wave 2 검증**
 

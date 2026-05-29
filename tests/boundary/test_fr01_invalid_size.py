@@ -47,8 +47,22 @@ class TestInvalidSizeBoundaryValues:
                 "three_by_four",
                 [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
             ),
+            (
+                "four_by_three",
+                [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]],
+            ),
+            (
+                "five_by_five",
+                [[1, 2, 3, 4, 5] for _ in range(5)],
+            ),
         ],
-        ids=["empty_list", "four_rows_zero_cols", "three_by_four"],
+        ids=[
+            "empty_list",
+            "four_rows_zero_cols",
+            "three_by_four",
+            "four_by_three",
+            "five_by_five",
+        ],
     )
     def test_invalid_size_grid_returns_failure(
         self,
@@ -134,8 +148,16 @@ class TestInvalidSizeScopeLimit:
         # When: comparing against out-of-scope valid 4x4 fixture
         # Then: valid 4x4 is not part of AC-FR01-01 RED inputs
         assert OUT_OF_SCOPE_VALID_4X4 not in registered_grids
-        assert len(registered_grids) == 4
+        assert len(registered_grids) == 6
         assert all(
-            key in {"none", "empty", "four_rows_zero_columns", "three_by_four"}
+            key
+            in {
+                "none",
+                "empty",
+                "four_rows_zero_columns",
+                "three_by_four",
+                "four_by_three",
+                "five_by_five",
+            }
             for key in AC_FR01_01_INVALID_SIZE_GRIDS
         )
