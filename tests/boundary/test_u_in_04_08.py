@@ -12,6 +12,7 @@ from tests.conftest import (
     GRID_VALUE_ABOVE_RANGE,
     GRID_VALUE_BELOW_RANGE,
     GRID_ZERO_BLANKS,
+    OUT_OF_SCOPE_VALID_4X4,
 )
 from tests.helpers.fr01_contract import (
     DUPLICATE_NON_ZERO_CODE,
@@ -174,3 +175,14 @@ class TestFr01ValidationPriority:
         result = validator.validate(grid_3x4)
 
         assert result.code == "INVALID_SIZE"
+
+
+class TestValidateValidFr01InputReturnsNone:
+    """RF-01 — valid 4x4 FR-01 input returns None without raising."""
+
+    def test_valid_grid_validate_returns_none_without_exception(self) -> None:
+        validator = BoundaryValidator()
+
+        result = validator.validate(OUT_OF_SCOPE_VALID_4X4)
+
+        assert result is None

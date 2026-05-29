@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.boundary.contracts import FailureResponse, no_valid_solution_failure
+from src.boundary.contracts import FailureResponse
+from src.boundary.error_mapper import ErrorMapper
 from src.boundary.validator import BoundaryValidator
 from src.control.domain_resolver import DomainResolver
 from src.entity.exceptions import UnsolvableDomainError
@@ -35,6 +36,6 @@ class ResolveUseCase:
         if failure is not None:
             return failure
         try:
-            return self._domain_resolver.resolve(grid)
+            return self._domain_resolver.resolve(grid).to_list()
         except UnsolvableDomainError:
-            return no_valid_solution_failure()
+            return ErrorMapper.map_unsolvable_domain()

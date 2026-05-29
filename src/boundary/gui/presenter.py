@@ -43,8 +43,6 @@ class GridPresenter:
         """
         try:
             result = self._use_case.execute(grid)
-        except NotImplementedError as exc:
-            return PresenterOutcome(status="error", error_message=str(exc))
         except Exception as exc:  # noqa: BLE001 — boundary must not crash GUI
             return PresenterOutcome(
                 status="error",

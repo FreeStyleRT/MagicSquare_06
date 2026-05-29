@@ -20,9 +20,8 @@ from src.boundary.contracts import (
     no_valid_solution_failure,
 )
 from src.control.resolve_use_case import ResolveUseCase
-from src.entity.services.empty_cell_locator import find_blank_coords
+from src.entity.services.partial_grid_analysis import analyze_partial_grid
 from src.entity.services.magic_square_validator import is_magic_square
-from src.entity.services.missing_number_finder import find_not_exist_nums
 from src.entity.services.result_formatter import ResultFormatter
 from src.entity.services.two_cell_solver import TwoCellSolver
 
@@ -33,8 +32,6 @@ GOLDEN_MASTER_PATH: Path = Path(__file__).resolve().parent.parent / (
 )
 
 DEFAULT_GOLDEN_MASTER_PATH: Path = GOLDEN_MASTER_PATH
-
-NOT_IMPLEMENTED_CODE: str = "NOT_IMPLEMENTED"
 
 GOLDEN_ERROR_CONTRACTS: dict[str, tuple[str, str]] = {
     "invalid_blank_count": (
@@ -95,10 +92,7 @@ def capture_resolve_output(
     Returns:
         ``Output:`` or ``Error:`` block text.
     """
-    try:
-        result = use_case.execute(grid)
-    except NotImplementedError:
-        return f"Error:\n{NOT_IMPLEMENTED_CODE}"
+    result = use_case.execute(grid)
 
     if isinstance(result, FailureResponse):
         return f"Error:\n{result.code}"
@@ -421,13 +415,13 @@ def assert_success_output_contract(
     assert len(result) == 6
     assert ResultFormatter.is_valid_solution_format(result)
 
-    blanks = find_blank_coords(grid)
-    small, large = find_not_exist_nums(grid)
-    assert (result[0], result[1]) == blanks[0]
-    assert (result[3], result[4]) == blanks[1]
+    context = analyze_partial_grid(grid)
+    first, second = context.blanks
+    small, large = context.missing
+    assert (result[0], result[1]) == first
+    assert (result[3], result[4]) == second
 
     solver = TwoCellSolver()
-    first, second = blanks[0], blanks[1]
     attempt_one = solver._filled_grid(grid, first, small, second, large)
     attempt_two = solver._filled_grid(grid, first, large, second, small)
 
