@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-from src.entity.constants import (
-    BLANK_CELL_VALUE,
-    CELL_MAX_VALUE,
-    CELL_MIN_VALUE,
-)
+from src.entity.services.partial_grid_analysis import analyze_partial_grid
 
 
 class MissingNumberFinder:
@@ -21,17 +17,7 @@ class MissingNumberFinder:
         Returns:
             Two missing integers `[small, large]` from the 1..16 range.
         """
-        present = {
-            cell
-            for row in grid
-            for cell in row
-            if cell != BLANK_CELL_VALUE
-        }
-        return [
-            number
-            for number in range(CELL_MIN_VALUE, CELL_MAX_VALUE + 1)
-            if number not in present
-        ]
+        return list(analyze_partial_grid(grid).missing)
 
 
 def find_not_exist_nums(grid: list[list[int]]) -> list[int]:

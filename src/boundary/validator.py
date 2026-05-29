@@ -22,22 +22,17 @@ from src.boundary.contracts import (
 class BoundaryValidator:
     """Validates FR-01 input contract before Domain entry."""
 
-    def validate(self, grid: Any) -> FailureResponse:
+    def validate(self, grid: Any) -> FailureResponse | None:
         """Validate grid against FR-01 rules; return first failure encountered.
 
         Args:
             grid: Candidate input matrix.
 
         Returns:
-            FailureResponse when any FR-01 contract is violated.
-
-        Raises:
-            NotImplementedError: When all FR-01 checks pass (domain not ready).
+            FailureResponse when any FR-01 contract is violated, else None
+            when all FR-01 checks pass.
         """
-        failure = self.validation_failure(grid)
-        if failure is not None:
-            return failure
-        raise NotImplementedError("Domain resolve not implemented")
+        return self.validation_failure(grid)
 
     def validation_failure(self, grid: Any) -> FailureResponse | None:
         """Return the first FR-01 failure, or None when all checks pass.

@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from src.entity.constants import BLANK_CELL_VALUE, GRID_DIMENSION
+from src.entity.services.partial_grid_analysis import (
+    Coordinate,
+    analyze_partial_grid,
+)
 
-Coordinate = tuple[int, int]
+__all__ = ["BlankFinder", "Coordinate", "find_blank_coords"]
 
 
 class BlankFinder:
@@ -19,12 +22,7 @@ class BlankFinder:
         Returns:
             Two coordinates in row-major scan order.
         """
-        coords: list[Coordinate] = []
-        for row in range(GRID_DIMENSION):
-            for col in range(GRID_DIMENSION):
-                if grid[row][col] == BLANK_CELL_VALUE:
-                    coords.append((row + 1, col + 1))
-        return coords
+        return list(analyze_partial_grid(grid).blanks)
 
 
 def find_blank_coords(grid: list[list[int]]) -> list[Coordinate]:

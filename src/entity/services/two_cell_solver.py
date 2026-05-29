@@ -5,12 +5,12 @@ from __future__ import annotations
 import copy
 
 from src.entity.exceptions import UnsolvableDomainError
-from src.entity.services.empty_cell_locator import find_blank_coords
+from src.entity.services.partial_grid_analysis import (
+    Coordinate,
+    analyze_partial_grid,
+)
 from src.entity.services.magic_square_validator import is_magic_square
-from src.entity.services.missing_number_finder import find_not_exist_nums
 from src.entity.services.result_formatter import ResultFormatter
-
-Coordinate = tuple[int, int]
 
 
 class TwoCellSolver:
@@ -28,9 +28,9 @@ class TwoCellSolver:
         Raises:
             UnsolvableDomainError: When neither attempt yields a magic square.
         """
-        blanks = find_blank_coords(grid)
-        small, large = find_not_exist_nums(grid)
-        first, second = blanks[0], blanks[1]
+        context = analyze_partial_grid(grid)
+        first, second = context.blanks
+        small, large = context.missing
 
         attempt_one = self._filled_grid(grid, first, small, second, large)
         if is_magic_square(attempt_one):
