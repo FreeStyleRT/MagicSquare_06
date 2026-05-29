@@ -13,9 +13,9 @@
 
 | ID | Severity | AC ID | 재현 절차 | 기대값 | 실제값 | 근본 원인 | 수정 요약 |
 |---|---|---|---|---|---|---|---|
-| DEF-001 | Critical | AC-FR01-01 | 프로젝트 루트에서 `python -m pytest tests/boundary/ -v` 실행 | `BoundaryValidator.validate(grid=None)` → `code="INVALID_SIZE"`, `message="Grid must be 4x4."` | `ModuleNotFoundError: No module named 'magic_square.boundary'` (수집 단계 ERROR) | `magic_square.boundary` 패키지·`BoundaryValidator` 미구현 | `magic_square/boundary/` 추가: `validator.py`에 `grid is None` 및 4×4 크기 분기, `contracts.py`에 `INVALID_SIZE` 계약 |
-| DEF-002 | Critical | AC-FR01-05 | `python -m pytest tests/control/ -v` 실행 | `grid=None` 시 `DomainResolver.resolve()` **0회**, 동일 실패 계약 반환 | `ModuleNotFoundError: No module named 'magic_square.control'` (수집 단계 ERROR) | `magic_square.control` 패키지·오케스트레이션 미구현 | `magic_square/control/resolve_use_case.py` 추가: `is_size_invalid` 시 validator만 호출, `resolve()` 미호출 |
-| DEF-003 | Minor | AC-FR01-01 | `tests/boundary/` 실행, `TestInvalidSizeResponseType::test_none_grid_returns_failure_response_model` | `FailureResponse.model_validate(result)` 성공 | `ValidationError`: 서로 다른 모듈의 `FailureResponse` 인스턴스 (`tests.helpers` vs `magic_square.boundary.contracts`) | 실패 응답 Pydantic 모델 이중 정의 | `tests/helpers/fr01_contract.py`가 `magic_square.boundary.contracts`를 re-export하도록 정렬 |
+| DEF-001 | Critical | AC-FR01-01 | 프로젝트 루트에서 `python -m pytest tests/boundary/ -v` 실행 | `BoundaryValidator.validate(grid=None)` → `code="INVALID_SIZE"`, `message="Grid must be 4x4."` | `ModuleNotFoundError: No module named 'src.boundary'` (수집 단계 ERROR) | `src.boundary` 패키지·`BoundaryValidator` 미구현 | `src/boundary/` 추가: `validator.py`에 `grid is None` 및 4×4 크기 분기, `contracts.py`에 `INVALID_SIZE` 계약 |
+| DEF-002 | Critical | AC-FR01-05 | `python -m pytest tests/control/ -v` 실행 | `grid=None` 시 `DomainResolver.resolve()` **0회**, 동일 실패 계약 반환 | `ModuleNotFoundError: No module named 'src.control'` (수집 단계 ERROR) | `src.control` 패키지·오케스트레이션 미구현 | `src/control/resolve_use_case.py` 추가: `is_size_invalid` 시 validator만 호출, `resolve()` 미호출 |
+| DEF-003 | Minor | AC-FR01-01 | `tests/boundary/` 실행, `TestInvalidSizeResponseType::test_none_grid_returns_failure_response_model` | `FailureResponse.model_validate(result)` 성공 | `ValidationError`: 서로 다른 모듈의 `FailureResponse` 인스턴스 (`tests.helpers` vs `src.boundary.contracts`) | 실패 응답 Pydantic 모델 이중 정의 | `tests/helpers/fr01_contract.py`가 `src.boundary.contracts`를 re-export하도록 정렬 |
 
 ---
 
@@ -26,13 +26,13 @@
 ```
 ERROR collecting tests/boundary/test_fr01_invalid_size.py
 tests\boundary\test_fr01_invalid_size.py:9: in <module>
-    from magic_square.boundary.validator import BoundaryValidator
-E   ModuleNotFoundError: No module named 'magic_square.boundary'
+    from src.boundary.validator import BoundaryValidator
+E   ModuleNotFoundError: No module named 'src.boundary'
 
 ERROR collecting tests/control/test_fr01_domain_not_called.py
 tests\control\test_fr01_domain_not_called.py:9: in <module>
-    from magic_square.control.domain_resolver import DomainResolver
-E   ModuleNotFoundError: No module named 'magic_square.control'
+    from src.control.domain_resolver import DomainResolver
+E   ModuleNotFoundError: No module named 'src.control'
 ```
 
 ### DEF-003 (Assertion / Validation)
@@ -75,6 +75,6 @@ cd c:\DEV\MagicSquare_06
 
 | 레이어 | 파일 |
 |---|---|
-| Boundary | `magic_square/boundary/constants.py`, `contracts.py`, `validator.py` |
-| Control | `magic_square/control/domain_resolver.py`, `resolve_use_case.py` |
+| Boundary | `src/boundary/constants.py`, `contracts.py`, `validator.py` |
+| Control | `src/control/domain_resolver.py`, `resolve_use_case.py` |
 | Test | `tests/helpers/fr01_contract.py` (계약 re-export) |

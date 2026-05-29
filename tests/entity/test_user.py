@@ -2,7 +2,7 @@
 
 import pytest
 
-from magic_square.entity.user import User
+from src.entity.user import User
 
 
 def test_create_user_with_valid_values() -> None:

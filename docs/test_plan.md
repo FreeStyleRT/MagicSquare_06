@@ -199,9 +199,9 @@ PRD §14 NFR-01, NFR-02 기준:
 
 | 레이어 | 패키지(목표) | 목표 커버리지 | 본 TP 기여 |
 |---|---|---|---|
-| **Domain (Entity + Domain logic)** | `magic_square/entity/` (+ 향후 solver) | **≥ 95%** | 직접 기여 낮음 (미호출 경로) |
-| **Boundary** | `magic_square/boundary/` | **≥ 85%** | **주요 기여** — `BoundaryValidator` 크기 분기 |
-| **Control** | `magic_square/control/` | Boundary와 합산 또는 별도 gate | resolver 분기 100% |
+| **Domain (Entity + Domain logic)** | `src/entity/` (+ 향후 solver) | **≥ 95%** | 직접 기여 낮음 (미호출 경로) |
+| **Boundary** | `src/boundary/` | **≥ 85%** | **주요 기여** — `BoundaryValidator` 크기 분기 |
+| **Control** | `src/control/` | Boundary와 합산 또는 별도 gate | resolver 분기 100% |
 
 ### 6.1 본 TP만으로의 기대 커버리지
 
@@ -231,19 +231,19 @@ pytest --cov=src --cov-report=term-missing
 
 ### 7.3 저장소 실제 패키지 매핑
 
-현재 프로젝트 루트 패키지는 `magic_square/` 이다. `src/` 레이아웃 도입 전까지 아래 명령을 **로컬 표준**으로 사용한다.
+현재 프로젝트 루트 패키지는 `src/` 이다. 아래 명령을 **로컬 표준**으로 사용한다.
 
 ```bash
 # Boundary (Track A — 본 TP)
 pytest tests/boundary/ tests/control/ \
-  --cov=magic_square.boundary \
-  --cov=magic_square.control \
+  --cov=src.boundary \
+  --cov=src.control \
   --cov-report=term-missing \
   --cov-fail-under=85
 
 # Domain (Track B — 전체 gate, 본 TP와 합산)
 pytest tests/ \
-  --cov=magic_square.entity \
+  --cov=src.entity \
   --cov-report=term-missing \
   --cov-fail-under=95
 ```
@@ -252,9 +252,9 @@ pytest tests/ \
 
 | 실행 프로파일 | `--cov` 대상 | `--cov-fail-under` | 용도 |
 |---|---|---|---|
-| `boundary-gate` | `magic_square.boundary`, `magic_square.control` | 85 | FR-01 Track A PR |
-| `domain-gate` | `magic_square.entity` (+ 향후 domain) | 95 | FR-02~05 Track B |
-| `full-gate` | `magic_square` | Boundary 85 + Domain 95 (리포트 분리) | 릴리즈 전 |
+| `boundary-gate` | `src.boundary`, `src.control` | 85 | FR-01 Track A PR |
+| `domain-gate` | `src.entity` (+ 향후 domain) | 95 | FR-02~05 Track B |
+| `full-gate` | `src` | Boundary 85 + Domain 95 (리포트 분리) | 릴리즈 전 |
 
 ### 7.5 term-missing 해석 가이드
 
@@ -266,8 +266,8 @@ pytest tests/ \
 
 ```bash
 pytest tests/boundary/ tests/control/ \
-  --cov=magic_square.boundary \
-  --cov=magic_square.control \
+  --cov=src.boundary \
+  --cov=src.control \
   --cov-report=xml:coverage-boundary.xml \
   --cov-fail-under=85
 ```
@@ -294,7 +294,7 @@ pytest tests/boundary/ tests/control/ \
 - [ ] P0: TC-01에서 `DomainResolver.resolve` **call_count == 0** 검증
 - [ ] P1: TC-02 ~ TC-06 parametrize 통과
 - [ ] EX-01: invalid 입력에서 예외 미발생
-- [ ] Boundary `--cov-fail-under=85` 충족 (`magic_square.boundary` + `control` failure path)
+- [ ] Boundary `--cov-fail-under=85` 충족 (`src.boundary` + `control` failure path)
 - [ ] PRD 추적성: AC-FR01-01, AC-FR01-05, BR-01, TS-E-01, RED-BND-VAL-001 매핑 문서화
 
 ---

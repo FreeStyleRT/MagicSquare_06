@@ -6,8 +6,8 @@ from unittest.mock import create_autospec
 
 import pytest
 
-from magic_square.control.domain_resolver import DomainResolver
-from magic_square.control.resolve_use_case import ResolveUseCase
+from src.control.domain_resolver import DomainResolver
+from src.control.resolve_use_case import ResolveUseCase
 from tests.conftest import (
     GRID_DUPLICATE_NON_ZERO,
     GRID_THREE_BLANKS,

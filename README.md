@@ -86,7 +86,7 @@ Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
 
 #### 테스트 코드
 
-- [x] **GM-04**: `tests/boundary/test_golden_master_magic_square.py` 작성
+- [x] **GM-04**: `tests/boundary/test_golden_master_src.py` 작성
 - [x] **GM-05**: approve 패턴 적용 (`--golden-approve`, `assert_golden_section`)
 - [x] **GM-06**: Golden Master 테스트 PASS 확인
 
@@ -168,8 +168,8 @@ pytest tests/boundary/test_fr01_invalid_size.py::TestInvalidSizeBoundaryValues -
 
 ```powershell
 pytest tests/boundary/test_fr01_invalid_size.py tests/control/test_fr01_domain_not_called.py -v `
-  --cov=magic_square.boundary `
-  --cov=magic_square.control `
+  --cov=src.boundary `
+  --cov=src.control `
   --cov-fail-under=85
 ```
 
@@ -208,7 +208,7 @@ MagicSquare_06/
 │   └── rules/
 ├── docs/
 │   └── PRD_MagicSquare.md
-├── magic_square/
+├── src/
 │   ├── boundary/
 │   ├── control/
 │   └── entity/

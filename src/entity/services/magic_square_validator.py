@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from magic_square.entity.constants import (
+from src.entity.constants import (
     BLANK_CELL_VALUE,
     CELL_MAX_VALUE,
     CELL_MIN_VALUE,

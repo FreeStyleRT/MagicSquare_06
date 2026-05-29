@@ -1,6 +1,6 @@
 """FR-01 contract constants and FailureResponse for test assertions."""
 
-from magic_square.boundary.contracts import (
+from src.boundary.contracts import (
     DUPLICATE_NON_ZERO_CODE,
     DUPLICATE_NON_ZERO_MESSAGE,
     INVALID_BLANK_COUNT_CODE,

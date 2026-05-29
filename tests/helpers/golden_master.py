@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 _SECTION_HEADER_PATTERN = re.compile(r"^\[[a-z_]+\]$")
 
-from magic_square.boundary.contracts import (
+from src.boundary.contracts import (
     DUPLICATE_NON_ZERO_CODE,
     DUPLICATE_NON_ZERO_MESSAGE,
     FailureResponse,
@@ -19,12 +19,12 @@ from magic_square.boundary.contracts import (
     invalid_blank_count_failure,
     no_valid_solution_failure,
 )
-from magic_square.control.resolve_use_case import ResolveUseCase
-from magic_square.entity.services.empty_cell_locator import find_blank_coords
-from magic_square.entity.services.magic_square_validator import is_magic_square
-from magic_square.entity.services.missing_number_finder import find_not_exist_nums
-from magic_square.entity.services.result_formatter import ResultFormatter
-from magic_square.entity.services.two_cell_solver import TwoCellSolver
+from src.control.resolve_use_case import ResolveUseCase
+from src.entity.services.empty_cell_locator import find_blank_coords
+from src.entity.services.magic_square_validator import is_magic_square
+from src.entity.services.missing_number_finder import find_not_exist_nums
+from src.entity.services.result_formatter import ResultFormatter
+from src.entity.services.two_cell_solver import TwoCellSolver
 
 from tests.helpers.golden_scenarios import GOLDEN_SCENARIOS, GoldenScenario
 

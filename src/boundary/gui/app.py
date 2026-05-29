@@ -6,9 +6,9 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-from magic_square.boundary.gui.main_window import MainWindow
-from magic_square.boundary.gui.presenter import GridPresenter
-from magic_square.control import DomainResolver, ResolveUseCase
+from src.boundary.gui.main_window import MainWindow
+from src.boundary.gui.presenter import GridPresenter
+from src.control import DomainResolver, ResolveUseCase
 
 
 def create_main_window() -> MainWindow:

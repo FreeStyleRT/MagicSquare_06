@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from magic_square.entity.constants import BLANK_CELL_VALUE, GRID_DIMENSION
+from src.entity.constants import BLANK_CELL_VALUE, GRID_DIMENSION
 
 Coordinate = tuple[int, int]
 

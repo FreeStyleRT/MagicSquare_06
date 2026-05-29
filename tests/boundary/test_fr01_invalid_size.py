@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from magic_square.boundary.validator import BoundaryValidator
+from src.boundary.validator import BoundaryValidator
 from tests.conftest import AC_FR01_01_INVALID_SIZE_GRIDS, OUT_OF_SCOPE_VALID_4X4
 from tests.helpers.fr01_contract import (
     INVALID_SIZE_CODE,

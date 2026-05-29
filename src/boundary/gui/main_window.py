@@ -15,9 +15,9 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from magic_square.boundary.gui.examples import EXAMPLE_GRID_D02
-from magic_square.boundary.gui.grid_widget import GridWidget
-from magic_square.boundary.gui.presenter import GridPresenter, PresenterOutcome
+from src.boundary.gui.examples import EXAMPLE_GRID_D02
+from src.boundary.gui.grid_widget import GridWidget
+from src.boundary.gui.presenter import GridPresenter, PresenterOutcome
 
 
 class MainWindow(QMainWindow):

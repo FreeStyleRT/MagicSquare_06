@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from magic_square.entity.services.two_cell_solver import TwoCellSolver
+from src.entity.services.two_cell_solver import TwoCellSolver
 
 
 class DomainResolver:

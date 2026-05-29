@@ -5,7 +5,7 @@ from __future__ import annotations
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGridLayout, QLabel, QSpinBox, QVBoxLayout, QWidget
 
-from magic_square.boundary.gui.constants import (
+from src.boundary.gui.constants import (
     BLANK_VALUE,
     CELL_MAX_VALUE,
     CELL_MIN_VALUE,

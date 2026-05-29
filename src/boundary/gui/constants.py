@@ -1,6 +1,6 @@
 """GUI-specific constants derived from Boundary contracts."""
 
-from magic_square.boundary.constants import GRID_DIMENSION
+from src.boundary.constants import GRID_DIMENSION
 
 CELL_MIN_VALUE: int = 0
 CELL_MAX_VALUE: int = 16

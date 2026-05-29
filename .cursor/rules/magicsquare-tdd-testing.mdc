@@ -1,6 +1,6 @@
 ---
 description: MagicSquare Dual-Track TDD 단계와 pytest 테스트 규칙
-globs: "{tests,magic_square}/**/*.py"
+globs: "{tests,src}/**/*.py"
 alwaysApply: false
 ---
 

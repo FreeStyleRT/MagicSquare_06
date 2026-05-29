@@ -16,8 +16,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from magic_square.control.domain_resolver import DomainResolver  # noqa: E402
-from magic_square.control.resolve_use_case import ResolveUseCase  # noqa: E402
+from src.control.domain_resolver import DomainResolver  # noqa: E402
+from src.control.resolve_use_case import ResolveUseCase  # noqa: E402
 from tests.helpers.golden_master import (  # noqa: E402
     DEFAULT_GOLDEN_MASTER_PATH,
     approve_golden_master,

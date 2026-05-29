@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from magic_square.boundary.contracts import NO_VALID_SOLUTION_CODE
-from magic_square.control.domain_resolver import DomainResolver
-from magic_square.control.resolve_use_case import ResolveUseCase
+from src.boundary.contracts import NO_VALID_SOLUTION_CODE
+from src.control.domain_resolver import DomainResolver
+from src.control.resolve_use_case import ResolveUseCase
 from tests.conftest import OUT_OF_SCOPE_VALID_4X4
 from tests.entity.conftest import GRID_G3, GRID_STEP_A_SUCCESS
 
