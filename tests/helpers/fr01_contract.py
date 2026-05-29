@@ -1,0 +1,25 @@
+"""FR-01 contract constants and FailureResponse for test assertions."""
+
+from magic_square.boundary.contracts import (
+    DUPLICATE_NON_ZERO_CODE,
+    DUPLICATE_NON_ZERO_MESSAGE,
+    INVALID_BLANK_COUNT_CODE,
+    INVALID_BLANK_COUNT_MESSAGE,
+    INVALID_SIZE_CODE,
+    INVALID_SIZE_MESSAGE,
+    INVALID_VALUE_RANGE_CODE,
+    INVALID_VALUE_RANGE_MESSAGE,
+    FailureResponse,
+)
+
+__all__ = [
+    "DUPLICATE_NON_ZERO_CODE",
+    "DUPLICATE_NON_ZERO_MESSAGE",
+    "FailureResponse",
+    "INVALID_BLANK_COUNT_CODE",
+    "INVALID_BLANK_COUNT_MESSAGE",
+    "INVALID_SIZE_CODE",
+    "INVALID_SIZE_MESSAGE",
+    "INVALID_VALUE_RANGE_CODE",
+    "INVALID_VALUE_RANGE_MESSAGE",
+]
