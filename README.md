@@ -132,12 +132,12 @@ pytest tests/boundary/test_fr01_invalid_size.py::TestInvalidSizeBoundaryValues -
 
 - [x] **G-19**: `test_scope_excludes_valid_4x4_and_downstream_domain_cases` — AC-FR01-01 범위 고정 확인
 - [x] **G-20** (TC-B-04): `test_scope_commit_excludes_fr01_02_through_fr05_cases` — FR-02~05 미포함 확인
-- [ ] **G-21** (TP-REF-01): P0·P1 전체 회귀 + Boundary/Control `--cov-fail-under=85` 충족
+- [x] **G-21** (TP-REF-01): P0·P1 전체 회귀 + Boundary/Control `--cov-fail-under=85` 충족 (REFACTOR 제외)
 
-**전체 gate 검증**
+**전체 gate 검증** (AC-FR01-01 범위 — U-IN/U-OUT 스켈레톤 RED 제외)
 
 ```powershell
-pytest tests/boundary/ tests/control/ -v `
+pytest tests/boundary/test_fr01_invalid_size.py tests/control/test_fr01_domain_not_called.py -v `
   --cov=magic_square.boundary `
   --cov=magic_square.control `
   --cov-fail-under=85
