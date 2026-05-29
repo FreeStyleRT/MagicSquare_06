@@ -121,12 +121,12 @@ pytest tests/boundary/test_fr01_invalid_size.py::TestInvalidSizeBoundaryValues -
 
 ### Wave 3 — P1: 예외·특이 케이스 (EX-01 ~ EX-06)
 
-- [ ] **G-13** (EX-01): BV-01~06 각각 — 예외 미발생, `FailureResponse` 반환
-- [ ] **G-14** (EX-02): 동일 invalid grid 2회 연속 — 동일 `code`·`message` (결정론)
-- [ ] **G-15** (EX-03): 비-리스트 타입 (`"invalid"`, `4`, `{}`) — 방어적 `INVALID_SIZE`
-- [ ] **G-16** (EX-04): 불균일 행 길이 — 행별 열 길이 검사
-- [ ] **G-17** (EX-05): 행 원소 `None` — `isinstance(row, list)` 검사
-- [ ] **G-18** (EX-06): mutable grid 전달 후 — 입력 grid 구조·내용 불변
+- [x] **G-13** (EX-01): BV-01~06 각각 — 예외 미발생, `FailureResponse` 반환
+- [x] **G-14** (EX-02): 동일 invalid grid 2회 연속 — 동일 `code`·`message` (결정론)
+- [x] **G-15** (EX-03): 비-리스트 타입 (`"invalid"`, `4`, `{}`) — 방어적 `INVALID_SIZE`
+- [x] **G-16** (EX-04): 불균일 행 길이 — 행별 열 길이 검사
+- [x] **G-17** (EX-05): 행 원소 `None` — `isinstance(row, list)` 검사
+- [x] **G-18** (EX-06): mutable grid 전달 후 — 입력 grid 구조·내용 불변
 
 ### Wave 4 — P2: 범위 가드 + REFACTOR
 
@@ -148,8 +148,8 @@ pytest tests/boundary/ tests/control/ -v `
 - [x] **GREEN-Commit-1** (Wave 1): None + resolver 미호출 — Control 3건 (`G-05`~`G-07`)
 - [x] **GREEN-Commit-2** (Wave 1+): None 계약 강화 — code / message / type (`G-02`~`G-04`)
 - [x] **GREEN-Commit-3** (Wave 2): BV-02~04 parametrize (`G-08`~`G-10`)
-- [ ] **GREEN-Commit-4** (Wave 2): BV-05, BV-06 추가 (`G-11`~`G-12`)
-- [ ] **GREEN-Commit-5** (Wave 3): EX-01~06 (`G-13`~`G-18`)
+- [x] **GREEN-Commit-4** (Wave 2): BV-05, BV-06 추가 (`G-11`~`G-12`)
+- [x] **GREEN-Commit-5** (Wave 3): EX-01~06 (`G-13`~`G-18`)
 - [ ] **GREEN-Commit-6** (Wave 4): REFACTOR + 커버리지 gate (`G-21`)
 
 ### 구현 의존 관계
