@@ -8,10 +8,9 @@ from src.entity.constants import (
     BLANK_CELL_VALUE,
     CELL_MAX_VALUE,
     CELL_MIN_VALUE,
-    GRID_DIMENSION,
+    MATRIX_SIZE,
 )
-
-Coordinate = tuple[int, int]
+from src.entity.value_objects.coordinate import Coordinate
 
 
 @dataclass(frozen=True)
@@ -33,11 +32,11 @@ def analyze_partial_grid(grid: list[list[int]]) -> PartialGridContext:
     """
     coords: list[Coordinate] = []
     present: set[int] = set()
-    for row_index in range(GRID_DIMENSION):
-        for col_index in range(GRID_DIMENSION):
+    for row_index in range(MATRIX_SIZE):
+        for col_index in range(MATRIX_SIZE):
             cell = grid[row_index][col_index]
             if cell == BLANK_CELL_VALUE:
-                coords.append((row_index + 1, col_index + 1))
+                coords.append(Coordinate(row_index + 1, col_index + 1))
             else:
                 present.add(cell)
     missing = [

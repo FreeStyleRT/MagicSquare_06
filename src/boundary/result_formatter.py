@@ -1,10 +1,9 @@
-"""Success result formatting for two-cell solver output (FR-05)."""
+"""E007 success vector formatting — Boundary SSOT (R-U3)."""
 
 from __future__ import annotations
 
-from src.entity.constants import GRID_DIMENSION
+from src.boundary.constants import GRID_DIMENSION
 
-Coordinate = tuple[int, int]
 SOLUTION_LENGTH: int = 6
 
 
@@ -13,24 +12,26 @@ class ResultFormatter:
 
     @staticmethod
     def format(
-        blank1: Coordinate,
+        row1: int,
+        col1: int,
         value1: int,
-        blank2: Coordinate,
+        row2: int,
+        col2: int,
         value2: int,
     ) -> list[int]:
         """Build ``[r1, c1, n1, r2, c2, n2]`` from blank assignments.
 
         Args:
-            blank1: First blank coordinate (1-index row, col).
+            row1: First blank row (1-index).
+            col1: First blank column (1-index).
             value1: Number placed at the first blank.
-            blank2: Second blank coordinate (1-index row, col).
+            row2: Second blank row (1-index).
+            col2: Second blank column (1-index).
             value2: Number placed at the second blank.
 
         Returns:
             Six-element solution vector with 1-index coordinates.
         """
-        row1, col1 = blank1
-        row2, col2 = blank2
         return [row1, col1, value1, row2, col2, value2]
 
     @staticmethod
@@ -46,5 +47,12 @@ class ResultFormatter:
         if len(result) != SOLUTION_LENGTH:
             return False
         row1, col1, _n1, row2, col2, _n2 = result
-        coords = (row1, col1, row2, col2)
-        return all(1 <= coord <= GRID_DIMENSION for coord in coords)
+        return (
+            _is_one_index_in_bounds(row1, col1, GRID_DIMENSION)
+            and _is_one_index_in_bounds(row2, col2, GRID_DIMENSION)
+        )
+
+
+def _is_one_index_in_bounds(row: int, col: int, size: int) -> bool:
+    """Return True when ``row`` and ``col`` are 1-index coordinates in range."""
+    return 1 <= row <= size and 1 <= col <= size

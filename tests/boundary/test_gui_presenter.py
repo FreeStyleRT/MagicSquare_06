@@ -7,8 +7,15 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.boundary.contracts import FailureResponse, invalid_size_failure
+from src.boundary.error_codes import (
+    INVALID_BLANK_COUNT_CODE,
+    INVALID_SIZE_CODE,
+    INVALID_SIZE_MESSAGE,
+    NO_VALID_SOLUTION_CODE,
+)
 from src.boundary.gui.presenter import GridPresenter
 from src.control.resolve_use_case import ResolveUseCase
+from src.control.solution_result import SolutionResult
 from tests.entity.conftest import GRID_G3
 
 
@@ -33,14 +40,14 @@ class TestGridPresenterFailure:
         outcome = presenter.solve([])
 
         assert outcome.failure is not None
-        assert outcome.failure.code == "INVALID_SIZE"
-        assert outcome.failure.message == "Grid must be 4x4."
+        assert outcome.failure.code == INVALID_SIZE_CODE
+        assert outcome.failure.message == INVALID_SIZE_MESSAGE
 
 
 class TestGridPresenterSuccess:
     def test_success_outcome_when_use_case_returns_solution(self) -> None:
         resolver = MagicMock()
-        resolver.resolve.return_value = [3, 3, 6, 4, 4, 1]
+        resolver.resolve.return_value = SolutionResult.wrap([3, 3, 6, 4, 4, 1])
         use_case = ResolveUseCase(domain_resolver=resolver)
         presenter = GridPresenter(use_case=use_case)
 
@@ -87,7 +94,7 @@ class TestGridPresenterNoValidSolution:
 
         assert outcome.status == "failure"
         assert outcome.failure is not None
-        assert outcome.failure.code == "NO_VALID_SOLUTION"
+        assert outcome.failure.code == NO_VALID_SOLUTION_CODE
 
 
 class TestGridPresenterFr01Failure:
@@ -100,14 +107,4 @@ class TestGridPresenterFr01Failure:
 
         assert outcome.status == "failure"
         assert outcome.failure is not None
-        assert outcome.failure.code == "INVALID_BLANK_COUNT"
-
-
-class TestFormatSolution:
-    def test_format_solution_uses_one_index_labels(self) -> None:
-        text = GridPresenter.format_solution([3, 3, 6, 4, 4, 1])
-
-        assert "행 3" in text
-        assert "열 3" in text
-        assert "→ 6" in text
-        assert "[3, 3, 6, 4, 4, 1]" in text
+        assert outcome.failure.code == INVALID_BLANK_COUNT_CODE

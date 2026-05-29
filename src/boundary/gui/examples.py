@@ -1,8 +1,7 @@
-"""Sample grids for GUI demonstration."""
+"""Sample grids for GUI demonstration (re-export from grid_fixtures SSOT)."""
 
-EXAMPLE_GRID_D02: list[list[int]] = [
-    [16, 2, 3, 13],
-    [5, 11, 10, 8],
-    [9, 7, 0, 12],
-    [4, 14, 15, 0],
-]
+from src.boundary.gui.grid_fixtures import EXAMPLE_GRID, GRID_G1, GRID_G2
+
+EXAMPLE_GRID_D02 = EXAMPLE_GRID
+
+__all__ = ["EXAMPLE_GRID", "EXAMPLE_GRID_D02", "GRID_G1", "GRID_G2"]

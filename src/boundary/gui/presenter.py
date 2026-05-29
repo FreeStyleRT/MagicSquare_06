@@ -52,20 +52,3 @@ class GridPresenter:
         if isinstance(result, FailureResponse):
             return PresenterOutcome(status="failure", failure=result)
         return PresenterOutcome(status="success", solution=result)
-
-    @staticmethod
-    def format_solution(solution: list[int]) -> str:
-        """Format a 6-element solution vector for display.
-
-        Args:
-            solution: `[r1, c1, n1, r2, c2, n2]` with 1-index coordinates.
-
-        Returns:
-            Human-readable multi-line string.
-        """
-        r1, c1, n1, r2, c2, n2 = solution
-        return (
-            f"빈칸 1: 행 {r1}, 열 {c1} → {n1}\n"
-            f"빈칸 2: 행 {r2}, 열 {c2} → {n2}\n"
-            f"결과: [{r1}, {c1}, {n1}, {r2}, {c2}, {n2}]"
-        )

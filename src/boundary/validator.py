@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from src.boundary.constants import (
@@ -43,15 +44,7 @@ class BoundaryValidator:
         Returns:
             FailureResponse on first violated contract, else None.
         """
-        if self.is_size_invalid(grid):
-            return invalid_size_failure()
-        if self.is_blank_count_invalid(grid):
-            return invalid_blank_count_failure()
-        if self.is_value_range_invalid(grid):
-            return invalid_value_range_failure()
-        if self.is_duplicate_non_zero_invalid(grid):
-            return duplicate_non_zero_failure()
-        return None
+        return self._first_failure(grid)
 
     def is_input_invalid(self, grid: Any) -> bool:
         """Return True when any FR-01 validation rule is violated."""
@@ -63,27 +56,56 @@ class BoundaryValidator:
 
     def is_blank_count_invalid(self, grid: Any) -> bool:
         """Return True when zero count is not exactly 2 (AC-FR01-02)."""
-        if self.is_size_invalid(grid):
+        if self._skip_after_size(grid):
             return False
         return self._count_blanks(grid) != REQUIRED_BLANK_COUNT
 
     def is_value_range_invalid(self, grid: Any) -> bool:
         """Return True when any cell is outside 0 or 1..16 (AC-FR01-03)."""
-        if self.is_size_invalid(grid):
+        if self._skip_after_size(grid):
             return False
-        if self.is_blank_count_invalid(grid):
+        if self._skip_after_blank_count(grid):
             return False
         return self._has_out_of_range_value(grid)
 
     def is_duplicate_non_zero_invalid(self, grid: Any) -> bool:
         """Return True when non-zero values contain duplicates (AC-FR01-04)."""
-        if self.is_size_invalid(grid):
+        if self._skip_after_size(grid):
             return False
-        if self.is_blank_count_invalid(grid):
+        if self._skip_after_blank_count(grid):
             return False
-        if self.is_value_range_invalid(grid):
+        if self._skip_after_value_range(grid):
             return False
         return self._has_duplicate_non_zero(grid)
+
+    def _first_failure(self, grid: Any) -> FailureResponse | None:
+        """Return the first FR-01 failure envelope for ``grid``."""
+        if self.is_size_invalid(grid):
+            return self._failure(invalid_size_failure)
+        if self.is_blank_count_invalid(grid):
+            return self._failure(invalid_blank_count_failure)
+        if self.is_value_range_invalid(grid):
+            return self._failure(invalid_value_range_failure)
+        if self.is_duplicate_non_zero_invalid(grid):
+            return self._failure(duplicate_non_zero_failure)
+        return None
+
+    @staticmethod
+    def _failure(factory: Callable[[], FailureResponse]) -> FailureResponse:
+        """Build a standard failure envelope from a contract factory."""
+        return factory()
+
+    def _skip_after_size(self, grid: Any) -> bool:
+        """Return True when later FR-01 rules must not run (size invalid)."""
+        return self.is_size_invalid(grid)
+
+    def _skip_after_blank_count(self, grid: Any) -> bool:
+        """Return True when value/duplicate rules must not run."""
+        return self.is_blank_count_invalid(grid)
+
+    def _skip_after_value_range(self, grid: Any) -> bool:
+        """Return True when duplicate rule must not run."""
+        return self.is_value_range_invalid(grid)
 
     def _is_invalid_size(self, grid: Any) -> bool:
         if grid is None:

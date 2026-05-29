@@ -1,11 +1,10 @@
-"""GUI-specific constants derived from Boundary contracts."""
+"""GUI-specific constants — re-export from Boundary/Entity SSOT."""
 
-from src.boundary.constants import GRID_DIMENSION
+from src.boundary.constants import CELL_MAX_VALUE, CELL_MIN_VALUE, GRID_DIMENSION
+from src.entity.constants import BLANK_CELL_VALUE
+from src.boundary.result_formatter import SOLUTION_LENGTH
 
-CELL_MIN_VALUE: int = 0
-CELL_MAX_VALUE: int = 16
-BLANK_VALUE: int = 0
-SOLUTION_LENGTH: int = 6
+BLANK_VALUE: int = BLANK_CELL_VALUE
 
 __all__ = [
     "BLANK_VALUE",
