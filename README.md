@@ -69,8 +69,99 @@ cd MagicSquare_06
 - [ ] 전체 TOTAL: 90%+
 
 ### 결함 목록 연결
-- [x] [defect_list.md](defect_list.md) 생성 및 발견 결함 기록
+- [x] [defect_list.md](docs/defect_list.md) 생성 및 발견 결함 기록
 - [x] 모든 결함 수정 후 회귀 테스트 통과 확인
+
+---
+
+## GREEN 단계 To-Do 리스트
+
+> [docs/test_plan.md](docs/test_plan.md) 기준 **P0 → P1 → P2** 오름차순으로 최소 구현을 진행합니다.  
+> 각 항목은 대응 RED 테스트가 통과(GREEN)되면 체크합니다.  
+> RED 커밋은 Wave 단위로 묶고, GREEN 커밋은 동일 Wave 번호로 맞춥니다.
+
+### 정렬 기준
+
+| 축 | 규칙 |
+|---|---|
+| 1차 | 우선순위 `P0` → `P1` → `P2` |
+| 2차 | `TC-01` → `TC-06` (test_plan §8) |
+| 3차 | 동일 입력 — Boundary 계약 → Control 격리 |
+| 4차 | README `TC-A-*` / `TC-B-*` 번호 |
+
+### Wave 1 — P0: `grid=None` + Domain 미호출
+
+- [x] **G-01** (TC-01 / BV-01): `BoundaryValidator.validate(None)` → `INVALID_SIZE` 반환
+- [x] **G-02** (TC-A-02): `code == "INVALID_SIZE"` 계약 (`contracts.py`)
+- [x] **G-03** (TC-A-03): `message == "Grid must be 4x4."` 문자 단위 일치
+- [x] **G-04** (TC-A-07): Pydantic `FailureResponse` 단일 정의 및 파싱 통과
+- [x] **G-05** (TC-A-04 / AC-FR01-05): `ResolveUseCase` — `grid=None` 시 `resolve()` 0회
+- [x] **G-06** (TC-B-02): Boundary 선행 검증 후 Domain에 `None` 미전달
+- [x] **G-07** (TC-B-03): `resolve()` mock `side_effect` — 호출 시 테스트 즉시 실패
+
+**Wave 1 검증**
+
+```powershell
+pytest tests/ -k "none" -v
+```
+
+### Wave 2 — P1: 경계값 확장 (BV-02 ~ BV-06)
+
+- [x] **G-08** (TC-02 / BV-02 / TC-A-05): `grid=[]` — `len(grid) != 4` 분기
+- [x] **G-09** (TC-03 / BV-03): `grid=[[]]*4` — 행별 `len(row) != 4` 분기
+- [x] **G-10** (TC-04 / BV-04 / TC-A-06): 3×4 — 행 수 ≠ 4 분기
+- [ ] **G-11** (TC-05 / BV-05): 4×3 — RED 테스트 추가 후 `INVALID_SIZE` GREEN
+- [ ] **G-12** (TC-06 / BV-06): 5×5 — RED 테스트 추가 후 행·열 초과 분기 GREEN
+
+**Wave 2 검증**
+
+```powershell
+pytest tests/boundary/test_fr01_invalid_size.py::TestInvalidSizeBoundaryValues -v
+```
+
+### Wave 3 — P1: 예외·특이 케이스 (EX-01 ~ EX-06)
+
+- [ ] **G-13** (EX-01): BV-01~06 각각 — 예외 미발생, `FailureResponse` 반환
+- [ ] **G-14** (EX-02): 동일 invalid grid 2회 연속 — 동일 `code`·`message` (결정론)
+- [ ] **G-15** (EX-03): 비-리스트 타입 (`"invalid"`, `4`, `{}`) — 방어적 `INVALID_SIZE`
+- [ ] **G-16** (EX-04): 불균일 행 길이 — 행별 열 길이 검사
+- [ ] **G-17** (EX-05): 행 원소 `None` — `isinstance(row, list)` 검사
+- [ ] **G-18** (EX-06): mutable grid 전달 후 — 입력 grid 구조·내용 불변
+
+### Wave 4 — P2: 범위 가드 + REFACTOR
+
+- [x] **G-19**: `test_scope_excludes_valid_4x4_and_downstream_domain_cases` — AC-FR01-01 범위 고정 확인
+- [x] **G-20** (TC-B-04): `test_scope_commit_excludes_fr01_02_through_fr05_cases` — FR-02~05 미포함 확인
+- [ ] **G-21** (TP-REF-01): P0·P1 전체 회귀 + Boundary/Control `--cov-fail-under=85` 충족
+
+**전체 gate 검증**
+
+```powershell
+pytest tests/boundary/ tests/control/ -v `
+  --cov=magic_square.boundary `
+  --cov=magic_square.control `
+  --cov-fail-under=85
+```
+
+### GREEN 커밋 묶음 (RED Wave 대응)
+
+- [x] **GREEN-Commit-1** (Wave 1): None + resolver 미호출 — Control 3건 (`G-05`~`G-07`)
+- [x] **GREEN-Commit-2** (Wave 1+): None 계약 강화 — code / message / type (`G-02`~`G-04`)
+- [x] **GREEN-Commit-3** (Wave 2): BV-02~04 parametrize (`G-08`~`G-10`)
+- [ ] **GREEN-Commit-4** (Wave 2): BV-05, BV-06 추가 (`G-11`~`G-12`)
+- [ ] **GREEN-Commit-5** (Wave 3): EX-01~06 (`G-13`~`G-18`)
+- [ ] **GREEN-Commit-6** (Wave 4): REFACTOR + 커버리지 gate (`G-21`)
+
+### 구현 의존 관계
+
+```
+G-01 (grid is None)
+  → G-02~G-04 (FailureResponse 계약)
+    → G-05~G-07 (ResolveUseCase early return)
+      → G-08~G-12 (len(grid) / len(row) 분기)
+        → G-13~G-18 (비-list / 불균일 행 / side effect)
+          → G-21 (REFACTOR + cov 85%)
+```
 
 ---
 
