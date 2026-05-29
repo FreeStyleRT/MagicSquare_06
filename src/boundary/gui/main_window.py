@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
-    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -18,6 +17,7 @@ from PyQt6.QtWidgets import (
 from src.boundary.gui.examples import EXAMPLE_GRID_D02
 from src.boundary.gui.grid_widget import GridWidget
 from src.boundary.gui.presenter import GridPresenter, PresenterOutcome
+from src.boundary.gui.result_presenter import ResultDisplay, ResultPresenter
 
 
 class MainWindow(QMainWindow):
@@ -34,9 +34,10 @@ class MainWindow(QMainWindow):
         self._presenter = presenter
         self._grid_widget = GridWidget()
         self._result_label = QLabel("결과가 여기에 표시됩니다.")
-        self._build_ui()
+        self._init_ui()
 
-    def _build_ui(self) -> None:
+    def _init_ui(self) -> None:
+        """Build window chrome, grid, controls, and result panel."""
         self.setWindowTitle("Magic Square 4×4")
         self.setMinimumSize(420, 520)
 
@@ -46,16 +47,25 @@ class MainWindow(QMainWindow):
         root.setSpacing(12)
         root.setContentsMargins(16, 16, 16, 16)
 
+        root.addWidget(self._init_header())
+        root.addWidget(self._grid_widget)
+        root.addLayout(self._init_action_buttons())
+        root.addWidget(self._init_result_panel())
+
+        self.statusBar().showMessage("격자를 입력한 뒤 [풀이]를 누르세요.")
+
+    def _init_header(self) -> QLabel:
+        """Create the window title label."""
         header = QLabel("4×4 마방진 풀이")
         header_font = QFont()
         header_font.setPointSize(14)
         header_font.setBold(True)
         header.setFont(header_font)
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        root.addWidget(header)
+        return header
 
-        root.addWidget(self._grid_widget)
-
+    def _init_action_buttons(self) -> QHBoxLayout:
+        """Create solve, example, and clear buttons."""
         button_row = QHBoxLayout()
         button_row.setSpacing(8)
 
@@ -74,8 +84,10 @@ class MainWindow(QMainWindow):
         clear_btn.clicked.connect(self._on_clear)
         button_row.addWidget(clear_btn)
 
-        root.addLayout(button_row)
+        return button_row
 
+    def _init_result_panel(self) -> QFrame:
+        """Create the styled result display frame."""
         result_frame = QFrame()
         result_frame.setFrameShape(QFrame.Shape.StyledPanel)
         result_layout = QVBoxLayout(result_frame)
@@ -93,9 +105,7 @@ class MainWindow(QMainWindow):
         self._result_label.setMinimumHeight(80)
         result_layout.addWidget(self._result_label)
 
-        root.addWidget(result_frame)
-
-        self.statusBar().showMessage("격자를 입력한 뒤 [풀이]를 누르세요.")
+        return result_frame
 
     def _on_solve(self) -> None:
         grid = self._grid_widget.get_grid()
@@ -104,52 +114,29 @@ class MainWindow(QMainWindow):
 
     def _on_load_example(self) -> None:
         self._grid_widget.set_grid(EXAMPLE_GRID_D02)
-        self._result_label.setText("예제 격자가 로드되었습니다. [풀이]를 누르세요.")
-        self._result_label.setStyleSheet("")
-        self.statusBar().showMessage("예제 D-02 격자 로드 완료")
+        self._apply_result_display(
+            ResultDisplay(
+                text="예제 격자가 로드되었습니다. [풀이]를 누르세요.",
+                stylesheet="",
+                status_message="예제 D-02 격자 로드 완료",
+            ),
+        )
 
     def _on_clear(self) -> None:
         self._grid_widget.clear()
-        self._result_label.setText("격자가 초기화되었습니다.")
-        self._result_label.setStyleSheet("")
-        self.statusBar().showMessage("격자 초기화 완료")
+        self._apply_result_display(
+            ResultDisplay(
+                text="격자가 초기화되었습니다.",
+                stylesheet="",
+                status_message="격자 초기화 완료",
+            ),
+        )
 
     def _show_outcome(self, outcome: PresenterOutcome) -> None:
-        if outcome.status == "success" and outcome.solution is not None:
-            text = self._presenter.format_solution(outcome.solution)
-            self._result_label.setText(text)
-            self._result_label.setStyleSheet(
-                "color: #1b5e20; background: #e8f5e9; padding: 8px; "
-                "border-radius: 4px;",
-            )
-            self.statusBar().showMessage("풀이 성공")
-            return
+        self._apply_result_display(ResultPresenter.format_outcome(outcome))
 
-        if outcome.status == "failure" and outcome.failure is not None:
-            text = (
-                f"오류 코드: {outcome.failure.code}\n"
-                f"메시지: {outcome.failure.message}"
-            )
-            self._result_label.setText(text)
-            self._result_label.setStyleSheet(
-                "color: #b71c1c; background: #ffebee; padding: 8px; "
-                "border-radius: 4px;",
-            )
-            self.statusBar().showMessage(f"검증 실패 — {outcome.failure.code}")
-            return
-
-        message = outcome.error_message or "알 수 없는 오류가 발생했습니다."
-        self._result_label.setText(f"처리 불가: {message}")
-        self._result_label.setStyleSheet(
-            "color: #e65100; background: #fff3e0; padding: 8px; "
-            "border-radius: 4px;",
-        )
-        self.statusBar().showMessage("도메인 로직 미구현 또는 내부 오류")
-
-        if "not implemented" in message.lower():
-            QMessageBox.information(
-                self,
-                "기능 미구현",
-                "유효한 4×4 격자는 크기 검증을 통과했습니다.\n"
-                "도메인 풀이 로직(FR-02~FR-05)은 아직 구현되지 않았습니다.",
-            )
+    def _apply_result_display(self, display: ResultDisplay) -> None:
+        """Update result label and status bar from a view model."""
+        self._result_label.setText(display.text)
+        self._result_label.setStyleSheet(display.stylesheet)
+        self.statusBar().showMessage(display.status_message)

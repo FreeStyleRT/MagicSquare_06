@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.entity.services.result_formatter import SOLUTION_LENGTH
+_SOLUTION_LENGTH: int = 6
 
 
 @dataclass(frozen=True)
@@ -26,8 +26,8 @@ class SolutionResult:
         Raises:
             ValueError: When ``raw`` is not a six-element vector.
         """
-        if len(raw) != SOLUTION_LENGTH:
-            msg = f"Solution vector length must be {SOLUTION_LENGTH}, got {len(raw)}"
+        if len(raw) != _SOLUTION_LENGTH:
+            msg = f"Solution vector length must be {_SOLUTION_LENGTH}, got {len(raw)}"
             raise ValueError(msg)
         return cls(
             values=(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5]),

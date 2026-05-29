@@ -22,7 +22,7 @@ from src.boundary.contracts import (
 from src.control.resolve_use_case import ResolveUseCase
 from src.entity.services.partial_grid_analysis import analyze_partial_grid
 from src.entity.services.magic_square_validator import is_magic_square
-from src.entity.services.result_formatter import ResultFormatter
+from src.boundary.result_formatter import ResultFormatter
 from src.entity.services.two_cell_solver import TwoCellSolver
 
 from tests.helpers.golden_scenarios import GOLDEN_SCENARIOS, GoldenScenario
@@ -428,14 +428,20 @@ def assert_success_output_contract(
     if require_reverse_fallback:
         assert is_magic_square(attempt_one) is False
         assert is_magic_square(attempt_two) is True
-        assert result == ResultFormatter.format(first, large, second, small)
+        assert result == ResultFormatter.format(
+            first.row, first.col, large, second.row, second.col, small,
+        )
         return
 
     assert is_magic_square(attempt_one) or is_magic_square(attempt_two)
     if is_magic_square(attempt_one):
-        assert result == ResultFormatter.format(first, small, second, large)
+        assert result == ResultFormatter.format(
+            first.row, first.col, small, second.row, second.col, large,
+        )
     else:
-        assert result == ResultFormatter.format(first, large, second, small)
+        assert result == ResultFormatter.format(
+            first.row, first.col, large, second.row, second.col, small,
+        )
 
 
 def assert_error_output_contract(

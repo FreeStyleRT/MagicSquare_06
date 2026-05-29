@@ -7,7 +7,14 @@ from src.entity.constants import (
     CELL_MAX_VALUE,
     CELL_MIN_VALUE,
     GRID_DIMENSION,
-    MAGIC_SUM,
+    MATRIX_SIZE,
+)
+from src.entity.services.grid_sums import (
+    is_magic_sum,
+    sum_anti_diagonal,
+    sum_col,
+    sum_main_diagonal,
+    sum_row,
 )
 
 
@@ -35,27 +42,24 @@ class MagicSquareValidator:
         values = [cell for row in grid for cell in row]
         if BLANK_CELL_VALUE in values:
             return False
-        if len(values) != GRID_DIMENSION * GRID_DIMENSION:
+        if len(values) != MATRIX_SIZE * MATRIX_SIZE:
             return False
         if len(set(values)) != len(values):
             return False
         return all(CELL_MIN_VALUE <= value <= CELL_MAX_VALUE for value in values)
 
     def _all_row_sums_valid(self, grid: list[list[int]]) -> bool:
-        return all(sum(row) == MAGIC_SUM for row in grid)
+        return all(is_magic_sum(sum_row(grid, row)) for row in range(GRID_DIMENSION))
 
     def _all_col_sums_valid(self, grid: list[list[int]]) -> bool:
-        for col in range(GRID_DIMENSION):
-            if sum(grid[row][col] for row in range(GRID_DIMENSION)) != MAGIC_SUM:
-                return False
-        return True
+        return all(
+            is_magic_sum(sum_col(grid, col)) for col in range(GRID_DIMENSION)
+        )
 
     def _both_diagonals_valid(self, grid: list[list[int]]) -> bool:
-        main_diag = sum(grid[i][i] for i in range(GRID_DIMENSION))
-        anti_diag = sum(
-            grid[i][GRID_DIMENSION - 1 - i] for i in range(GRID_DIMENSION)
+        return is_magic_sum(sum_main_diagonal(grid)) and is_magic_sum(
+            sum_anti_diagonal(grid),
         )
-        return main_diag == MAGIC_SUM and anti_diag == MAGIC_SUM
 
 
 def is_magic_square(grid: list[list[int]]) -> bool:

@@ -6,7 +6,7 @@ from src.boundary.contracts import NO_VALID_SOLUTION_CODE
 from src.control.domain_resolver import DomainResolver
 from src.control.resolve_use_case import ResolveUseCase
 from src.control.solution_result import SolutionResult
-from src.entity.services.result_formatter import ResultFormatter
+from src.boundary.result_formatter import ResultFormatter
 from tests.conftest import OUT_OF_SCOPE_VALID_4X4
 from tests.entity.conftest import GRID_G3, GRID_STEP_A_SUCCESS
 
