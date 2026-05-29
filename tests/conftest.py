@@ -9,6 +9,14 @@ import pytest
 from tests.helpers.fr01_contract import INVALID_SIZE_CODE, INVALID_SIZE_MESSAGE
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    """Register custom markers used by the test suite."""
+    config.addinivalue_line(
+        "markers",
+        "golden_master: Golden Master regression tests (GM-1/GM-2)",
+    )
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     """Register Golden Master approve flag."""
     parser.addoption(

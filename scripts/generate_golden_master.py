@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Generate or approve the Golden Master baseline for Magic Square Solver."""
+"""Generate or refresh ``tests/golden_master_expected.txt`` from live solver output.
+
+Usage:
+    python scripts/generate_golden_master.py
+    python scripts/generate_golden_master.py --check   # compare only, exit 1 on diff
+"""
 
 from __future__ import annotations
 
@@ -7,74 +12,61 @@ import argparse
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from magic_square.control.domain_resolver import DomainResolver
-from magic_square.control.resolve_use_case import ResolveUseCase
-from tests.helpers.golden_master import (
-    GOLDEN_MASTER_PATH,
-    assert_golden_master,
+from magic_square.control.domain_resolver import DomainResolver  # noqa: E402
+from magic_square.control.resolve_use_case import ResolveUseCase  # noqa: E402
+from tests.helpers.golden_master import (  # noqa: E402
+    DEFAULT_GOLDEN_MASTER_PATH,
+    approve_golden_master,
     build_golden_document,
 )
 
 
-def _parse_args() -> argparse.Namespace:
+def main() -> int:
+    """Capture solver output and write or verify the golden master baseline."""
     parser = argparse.ArgumentParser(
-        description="Capture solver output into tests/golden_master_expected.txt",
-    )
-    parser.add_argument(
-        "--approve",
-        action="store_true",
-        help="Write current solver output to the golden baseline file",
-    )
-    parser.add_argument(
-        "--print",
-        action="store_true",
-        dest="print_output",
-        help="Print captured document to stdout without writing",
+        description="Generate Magic Square Golden Master baseline (GM-1).",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=GOLDEN_MASTER_PATH,
-        help=f"Golden file path (default: {GOLDEN_MASTER_PATH})",
+        default=DEFAULT_GOLDEN_MASTER_PATH,
+        help="Target baseline file path.",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Compare only; exit 1 when baseline differs (no write).",
+    )
+    args = parser.parse_args()
 
-
-def main() -> int:
-    """Run golden capture and optionally approve the baseline.
-
-    Returns:
-        Process exit code (0 on success, 1 on mismatch without approve).
-    """
-    args = _parse_args()
     use_case = ResolveUseCase(domain_resolver=DomainResolver())
-    document = build_golden_document(use_case)
+    actual = build_golden_document(use_case)
 
-    if args.print_output:
-        sys.stdout.write(document)
+    if args.check:
+        try:
+            status = approve_golden_master(
+                actual,
+                args.output,
+                auto_create=False,
+                force_update=False,
+            )
+        except AssertionError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+        print(f"Golden master OK ({status}): {args.output}")
         return 0
 
-    if args.approve or not args.output.exists():
-        args.output.write_text(document, encoding="utf-8")
-        action = "approved" if args.approve else "created"
-        sys.stdout.write(f"Golden Master {action}: {args.output}\n")
-        return 0
-
-    try:
-        assert_golden_master(
-            use_case,
-            golden_path=args.output,
-            approve=False,
-        )
-    except AssertionError as exc:
-        sys.stderr.write(f"{exc}\n")
-        return 1
-
-    sys.stdout.write(f"Golden Master matches: {args.output}\n")
+    status = approve_golden_master(
+        actual,
+        args.output,
+        auto_create=True,
+        force_update=True,
+    )
+    print(f"Golden master {status}: {args.output}")
     return 0
 
 

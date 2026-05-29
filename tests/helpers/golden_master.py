@@ -3,11 +3,28 @@
 from __future__ import annotations
 
 import difflib
+import re
 from pathlib import Path
-from typing import Any
+_SECTION_HEADER_PATTERN = re.compile(r"^\[[a-z_]+\]$")
 
-from magic_square.boundary.contracts import FailureResponse
+from magic_square.boundary.contracts import (
+    DUPLICATE_NON_ZERO_CODE,
+    DUPLICATE_NON_ZERO_MESSAGE,
+    FailureResponse,
+    INVALID_BLANK_COUNT_CODE,
+    INVALID_BLANK_COUNT_MESSAGE,
+    NO_VALID_SOLUTION_CODE,
+    NO_VALID_SOLUTION_MESSAGE,
+    duplicate_non_zero_failure,
+    invalid_blank_count_failure,
+    no_valid_solution_failure,
+)
 from magic_square.control.resolve_use_case import ResolveUseCase
+from magic_square.entity.services.empty_cell_locator import find_blank_coords
+from magic_square.entity.services.magic_square_validator import is_magic_square
+from magic_square.entity.services.missing_number_finder import find_not_exist_nums
+from magic_square.entity.services.result_formatter import ResultFormatter
+from magic_square.entity.services.two_cell_solver import TwoCellSolver
 
 from tests.helpers.golden_scenarios import GOLDEN_SCENARIOS, GoldenScenario
 
@@ -15,7 +32,30 @@ GOLDEN_MASTER_PATH: Path = Path(__file__).resolve().parent.parent / (
     "golden_master_expected.txt"
 )
 
+DEFAULT_GOLDEN_MASTER_PATH: Path = GOLDEN_MASTER_PATH
+
 NOT_IMPLEMENTED_CODE: str = "NOT_IMPLEMENTED"
+
+GOLDEN_ERROR_CONTRACTS: dict[str, tuple[str, str]] = {
+    "invalid_blank_count": (
+        INVALID_BLANK_COUNT_CODE,
+        INVALID_BLANK_COUNT_MESSAGE,
+    ),
+    "duplicate_number": (
+        DUPLICATE_NON_ZERO_CODE,
+        DUPLICATE_NON_ZERO_MESSAGE,
+    ),
+    "no_valid_solution": (
+        NO_VALID_SOLUTION_CODE,
+        NO_VALID_SOLUTION_MESSAGE,
+    ),
+}
+
+GOLDEN_FAILURE_FACTORIES: dict[str, FailureResponse] = {
+    "invalid_blank_count": invalid_blank_count_failure(),
+    "duplicate_number": duplicate_non_zero_failure(),
+    "no_valid_solution": no_valid_solution_failure(),
+}
 
 
 def format_grid(grid: list[list[int]]) -> str:
@@ -109,6 +149,18 @@ def build_golden_document(
     return "\n\n".join(blocks) + "\n"
 
 
+def _is_section_header(line: str) -> bool:
+    """Return True when ``line`` is a scenario section header.
+
+    Args:
+        line: Single line from a golden document.
+
+    Returns:
+        True for ``[section_id]`` headers; false for compact ``Output`` vectors.
+    """
+    return bool(_SECTION_HEADER_PATTERN.match(line))
+
+
 def parse_golden_document(text: str) -> dict[str, str]:
     """Parse a golden-master document into section-id → body maps.
 
@@ -123,7 +175,7 @@ def parse_golden_document(text: str) -> dict[str, str]:
     current_lines: list[str] = []
 
     for line in text.splitlines():
-        if line.startswith("[") and line.endswith("]"):
+        if _is_section_header(line):
             if current_id is not None:
                 sections[current_id] = "\n".join(current_lines).rstrip()
             current_id = line[1:-1]
@@ -169,6 +221,57 @@ def unified_diff(
     )
 
 
+def approve_golden_master(
+    actual: str,
+    golden_path: Path,
+    *,
+    auto_create: bool = True,
+    force_update: bool = False,
+) -> str:
+    """Write or compare a golden-master baseline document.
+
+    Args:
+        actual: Captured golden document text.
+        golden_path: Path to the committed baseline file.
+        auto_create: When True, create the file if it does not exist.
+        force_update: When True, overwrite the file when content differs.
+
+    Returns:
+        ``"created"``, ``"updated"``, or ``"matched"``.
+
+    Raises:
+        AssertionError: When the baseline is missing (and not auto-created) or
+            when content differs and ``force_update`` is False.
+    """
+    if not golden_path.exists():
+        if not auto_create:
+            raise AssertionError(
+                f"Golden Master baseline not found: {golden_path}. "
+                "Run without --check to create it.",
+            )
+        golden_path.write_text(actual, encoding="utf-8")
+        return "created"
+
+    expected = golden_path.read_text(encoding="utf-8")
+    if actual == expected:
+        return "matched"
+
+    if force_update:
+        golden_path.write_text(actual, encoding="utf-8")
+        return "updated"
+
+    diff_text = unified_diff(
+        expected,
+        actual,
+        fromfile=str(golden_path),
+        tofile="current output",
+    )
+    raise AssertionError(
+        "Golden Master mismatch. Re-run without --check to update.\n"
+        f"{diff_text}",
+    )
+
+
 def assert_golden_master(
     use_case: ResolveUseCase,
     *,
@@ -190,22 +293,19 @@ def assert_golden_master(
     actual_document = build_golden_document(use_case, scenarios)
 
     if approve or not golden_path.exists():
-        golden_path.write_text(actual_document, encoding="utf-8")
+        approve_golden_master(
+            actual_document,
+            golden_path,
+            auto_create=True,
+            force_update=True,
+        )
         return
 
-    expected_document = golden_path.read_text(encoding="utf-8")
-    if actual_document == expected_document:
-        return
-
-    diff_text = unified_diff(
-        expected_document,
+    approve_golden_master(
         actual_document,
-        fromfile=str(golden_path),
-        tofile="current output",
-    )
-    raise AssertionError(
-        "Golden Master mismatch. Re-run with --golden-approve to update.\n"
-        f"{diff_text}",
+        golden_path,
+        auto_create=False,
+        force_update=False,
     )
 
 
@@ -223,6 +323,173 @@ def load_section_bodies(document: str) -> dict[str, str]:
         section_id: "\n".join(body.splitlines()[1:]).strip()
         for section_id, body in parsed.items()
     }
+
+
+def build_scenario_block(
+    use_case: ResolveUseCase,
+    scenario: GoldenScenario,
+) -> str:
+    """Capture one scenario as a golden section block.
+
+    Args:
+        use_case: Control-layer orchestrator.
+        scenario: Scenario metadata and input grid.
+
+    Returns:
+        Full section text including header and input grid.
+    """
+    body = capture_resolve_output(use_case, scenario.grid)
+    return format_scenario_block(scenario, body)
+
+
+def assert_golden_section(
+    use_case: ResolveUseCase,
+    scenario: GoldenScenario,
+    *,
+    golden_path: Path = GOLDEN_MASTER_PATH,
+    approve: bool = False,
+) -> None:
+    """Compare or approve one golden-master scenario section.
+
+    Args:
+        use_case: Control-layer orchestrator.
+        scenario: Scenario to capture and compare.
+        golden_path: Path to the committed baseline file.
+        approve: When True, overwrite the baseline with current output.
+
+    Raises:
+        AssertionError: When actual output does not match the baseline section.
+    """
+    if approve or not golden_path.exists():
+        assert_golden_master(
+            use_case,
+            golden_path=golden_path,
+            approve=approve or not golden_path.exists(),
+        )
+        return
+
+    expected_document = golden_path.read_text(encoding="utf-8")
+    expected_sections = parse_golden_document(expected_document)
+    actual_block = build_scenario_block(use_case, scenario)
+
+    if scenario.section_id not in expected_sections:
+        diff_text = unified_diff(
+            "",
+            actual_block,
+            fromfile=f"{scenario.section_id} (missing)",
+            tofile=f"{scenario.section_id} (actual)",
+        )
+        raise AssertionError(
+            f"Golden Master section [{scenario.section_id}] missing in "
+            f"{golden_path}. Re-run with --golden-approve to update.\n"
+            f"{diff_text}",
+        )
+
+    expected_block = expected_sections[scenario.section_id]
+    if actual_block == expected_block:
+        return
+
+    diff_text = compare_section(
+        expected_block,
+        actual_block,
+        section_id=scenario.section_id,
+    )
+    raise AssertionError(
+        f"Golden Master mismatch [{scenario.section_id}]. "
+        "Re-run with --golden-approve to update.\n"
+        f"{diff_text}",
+    )
+
+
+def assert_success_output_contract(
+    result: list[int],
+    grid: list[list[int]],
+    *,
+    require_reverse_fallback: bool = False,
+) -> None:
+    """Assert FR-05 success vector and placement rules.
+
+    Args:
+        result: Six-element solution from ``ResolveUseCase``.
+        grid: Scenario input matrix.
+        require_reverse_fallback: When True, assert attempt 1 fails and
+            attempt 2 (reverse assignment) succeeds.
+
+    Raises:
+        AssertionError: When format or placement contracts are violated.
+    """
+    assert len(result) == 6
+    assert ResultFormatter.is_valid_solution_format(result)
+
+    blanks = find_blank_coords(grid)
+    small, large = find_not_exist_nums(grid)
+    assert (result[0], result[1]) == blanks[0]
+    assert (result[3], result[4]) == blanks[1]
+
+    solver = TwoCellSolver()
+    first, second = blanks[0], blanks[1]
+    attempt_one = solver._filled_grid(grid, first, small, second, large)
+    attempt_two = solver._filled_grid(grid, first, large, second, small)
+
+    if require_reverse_fallback:
+        assert is_magic_square(attempt_one) is False
+        assert is_magic_square(attempt_two) is True
+        assert result == ResultFormatter.format(first, large, second, small)
+        return
+
+    assert is_magic_square(attempt_one) or is_magic_square(attempt_two)
+    if is_magic_square(attempt_one):
+        assert result == ResultFormatter.format(first, small, second, large)
+    else:
+        assert result == ResultFormatter.format(first, large, second, small)
+
+
+def assert_error_output_contract(
+    result: FailureResponse,
+    scenario: GoldenScenario,
+) -> None:
+    """Assert FR-01 failure envelope for a golden error scenario.
+
+    Args:
+        result: Failure response from ``ResolveUseCase``.
+        scenario: Golden scenario metadata.
+
+    Raises:
+        AssertionError: When code or message does not match the contract.
+    """
+    expected_code, expected_message = GOLDEN_ERROR_CONTRACTS[scenario.section_id]
+    assert result.code == expected_code
+    assert result.message == expected_message
+    canonical = GOLDEN_FAILURE_FACTORIES[scenario.section_id]
+    assert result == canonical
+
+
+def assert_scenario_output_contract(
+    use_case: ResolveUseCase,
+    scenario: GoldenScenario,
+) -> None:
+    """Validate API result contracts for one golden scenario.
+
+    Args:
+        use_case: Control-layer orchestrator.
+        scenario: Scenario metadata.
+
+    Raises:
+        AssertionError: When result type or domain contracts are violated.
+    """
+    result = use_case.execute(scenario.grid)
+    if scenario.section_id in GOLDEN_ERROR_CONTRACTS:
+        assert isinstance(result, FailureResponse)
+        assert_error_output_contract(result, scenario)
+        return
+
+    assert isinstance(result, list)
+    require_reverse = scenario.section_id == "reverse_success"
+    assert_success_output_contract(
+        result,
+        scenario.grid,
+        require_reverse_fallback=require_reverse,
+    )
 
 
 def compare_section(

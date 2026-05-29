@@ -72,6 +72,36 @@ cd MagicSquare_06
 - [x] [defect_list.md](docs/defect_list.md) 생성 및 발견 결함 기록
 - [x] 모든 결함 수정 후 회귀 테스트 통과 확인
 
+### Golden Master 회귀 안전장치
+
+Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
+
+설계·운영: [docs/golden_master_approval.md](docs/golden_master_approval.md)
+
+#### 기준 파일 생성
+
+- [x] **GM-01**: `tests/golden_master_expected.txt` 생성
+- [x] **GM-02**: 정상/역순/오류 시나리오 추가
+- [x] **GM-03**: `git add tests/golden_master_expected.txt` (버전 관리 포함)
+
+#### 테스트 코드
+
+- [x] **GM-04**: `tests/boundary/test_golden_master_magic_square.py` 작성
+- [x] **GM-05**: approve 패턴 적용 (`--golden-approve`, `assert_golden_section`)
+- [x] **GM-06**: Golden Master 테스트 PASS 확인
+
+```powershell
+pytest -m golden_master -v
+python scripts/generate_golden_master.py --check
+```
+
+#### 회귀 보호
+
+- [x] **GM-07**: row-major 규칙 보호
+- [x] **GM-08**: 1-index 출력 보호
+- [x] **GM-09**: reverse 조합 fallback 보호
+- [x] **GM-10**: Error Contract 보호
+
 ---
 
 ## GREEN 단계 To-Do 리스트
