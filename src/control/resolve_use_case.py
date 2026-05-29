@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from magic_square.boundary.contracts import FailureResponse, no_valid_solution_failure
-from magic_square.boundary.validator import BoundaryValidator
-from magic_square.control.domain_resolver import DomainResolver
-from magic_square.entity.exceptions import UnsolvableDomainError
+from src.boundary.contracts import FailureResponse, no_valid_solution_failure
+from src.boundary.validator import BoundaryValidator
+from src.control.domain_resolver import DomainResolver
+from src.entity.exceptions import UnsolvableDomainError
 
 
 class ResolveUseCase:

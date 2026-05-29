@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from magic_square.entity.constants import GRID_DIMENSION
+from src.entity.constants import GRID_DIMENSION
 
 Coordinate = tuple[int, int]
 SOLUTION_LENGTH: int = 6

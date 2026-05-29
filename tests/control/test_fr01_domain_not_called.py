@@ -6,8 +6,8 @@ from unittest.mock import create_autospec
 
 import pytest
 
-from magic_square.control.domain_resolver import DomainResolver
-from magic_square.control.resolve_use_case import ResolveUseCase
+from src.control.domain_resolver import DomainResolver
+from src.control.resolve_use_case import ResolveUseCase
 from tests.helpers.fr01_contract import INVALID_SIZE_CODE, INVALID_SIZE_MESSAGE
 
 

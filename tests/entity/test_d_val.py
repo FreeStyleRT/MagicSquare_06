@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 
-from magic_square.entity.services.magic_square_validator import (
+from src.entity.services.magic_square_validator import (
     MagicSquareValidator,
     is_magic_square,
 )

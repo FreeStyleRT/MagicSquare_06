@@ -6,4 +6,4 @@ if not exist ".venv\Scripts\python.exe" (
     python -m venv .venv
     .venv\Scripts\pip install -r requirements.txt -q
 )
-.venv\Scripts\python -m magic_square.boundary.gui
+.venv\Scripts\python -m src.boundary.gui

@@ -19,8 +19,8 @@ class TestAcFr0101CoverageGate:
             "tests/boundary/test_u_in_04_08.py",
             "tests/boundary/test_u_flow_02_extended.py",
             "tests/control/test_fr01_domain_not_called.py",
-            "--cov=magic_square.boundary",
-            "--cov=magic_square.control",
+            "--cov=src.boundary",
+            "--cov=src.control",
             "--cov-fail-under=85",
             "-q",
         ]

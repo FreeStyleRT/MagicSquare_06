@@ -13,11 +13,11 @@ alwaysApply: true
 - 개발 방식: ECB 아키텍처 + Dual-Track TDD를 기본 전략으로 사용한다.
 
 ## 기본 디렉터리 구조
-- 루트 패키지 이름은 `magic_square`를 사용한다.
+- 루트 패키지 이름은 `src`를 사용한다.
 - 권장 구조:
-  - `magic_square/boundary/`
-  - `magic_square/control/`
-  - `magic_square/entity/`
+  - `src/boundary/`
+  - `src/control/`
+  - `src/entity/`
   - `tests/`
 - 테스트 디렉터리는 레이어별 하위 구성을 우선한다.
   - `tests/boundary/`

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import copy
 
-from magic_square.entity.exceptions import UnsolvableDomainError
-from magic_square.entity.services.empty_cell_locator import find_blank_coords
-from magic_square.entity.services.magic_square_validator import is_magic_square
-from magic_square.entity.services.missing_number_finder import find_not_exist_nums
-from magic_square.entity.services.result_formatter import ResultFormatter
+from src.entity.exceptions import UnsolvableDomainError
+from src.entity.services.empty_cell_locator import find_blank_coords
+from src.entity.services.magic_square_validator import is_magic_square
+from src.entity.services.missing_number_finder import find_not_exist_nums
+from src.entity.services.result_formatter import ResultFormatter
 
 Coordinate = tuple[int, int]
 

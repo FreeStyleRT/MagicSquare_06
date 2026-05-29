@@ -103,7 +103,7 @@ forbidden:
 ################################################################################
 file_structure:
   # MagicSquare ECB 권장 구조
-  # magic_square/
+  # src/
   # ├─ boundary/   # UI/API/CLI, 입출력 어댑터
   # ├─ control/    # 유스케이스/흐름 제어
   # ├─ entity/     # 도메인 모델/규칙/검증
@@ -111,7 +111,7 @@ file_structure:
   #    ├─ boundary/
   #    ├─ control/
   #    └─ entity/
-  root_package: "magic_square"
+  root_package: "src"
   required_directories:
     - "boundary/"
     - "control/"

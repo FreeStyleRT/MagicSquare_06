@@ -6,9 +6,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from magic_square.boundary.contracts import FailureResponse, invalid_size_failure
-from magic_square.boundary.gui.presenter import GridPresenter
-from magic_square.control.resolve_use_case import ResolveUseCase
+from src.boundary.contracts import FailureResponse, invalid_size_failure
+from src.boundary.gui.presenter import GridPresenter
+from src.control.resolve_use_case import ResolveUseCase
 from tests.entity.conftest import GRID_G3
 
 
@@ -59,7 +59,7 @@ class TestGridPresenterSuccess:
 
 class TestGridPresenterSuccessWithRealResolver:
     def test_g2_example_returns_success_outcome(self) -> None:
-        from magic_square.control.domain_resolver import DomainResolver
+        from src.control.domain_resolver import DomainResolver
 
         use_case = ResolveUseCase(domain_resolver=DomainResolver())
         presenter = GridPresenter(use_case=use_case)
@@ -78,7 +78,7 @@ class TestGridPresenterSuccessWithRealResolver:
 
 class TestGridPresenterNoValidSolution:
     def test_g3_returns_failure_outcome(self) -> None:
-        from magic_square.control.domain_resolver import DomainResolver
+        from src.control.domain_resolver import DomainResolver
 
         use_case = ResolveUseCase(domain_resolver=DomainResolver())
         presenter = GridPresenter(use_case=use_case)

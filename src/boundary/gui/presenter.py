@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from magic_square.boundary.contracts import FailureResponse
-from magic_square.control.resolve_use_case import ResolveUseCase
+from src.boundary.contracts import FailureResponse
+from src.control.resolve_use_case import ResolveUseCase
 
 PresenterStatus = Literal["success", "failure", "error"]
 

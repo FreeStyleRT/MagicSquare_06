@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from magic_square.boundary.validator import BoundaryValidator
+from src.boundary.validator import BoundaryValidator
 from tests.conftest import (
     GRID_DUPLICATE_NON_ZERO,
     GRID_ONE_BLANK,

@@ -1,6 +1,6 @@
 [run]
 omit =
-    magic_square/boundary/gui/*
+    src/boundary/gui/*
 
 [report]
 fail_under = 85

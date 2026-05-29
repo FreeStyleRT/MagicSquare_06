@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from magic_square.entity.services.empty_cell_locator import (
+from src.entity.services.empty_cell_locator import (
     BlankFinder,
     find_blank_coords,
 )
-from magic_square.entity.services.missing_number_finder import (
+from src.entity.services.missing_number_finder import (
     MissingNumberFinder,
     find_not_exist_nums,
 )

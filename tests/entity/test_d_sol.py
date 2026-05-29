@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from magic_square.entity.exceptions import UnsolvableDomainError
-from magic_square.entity.services.result_formatter import ResultFormatter
-from magic_square.entity.services.two_cell_solver import TwoCellSolver, solution
+from src.entity.exceptions import UnsolvableDomainError
+from src.entity.services.result_formatter import ResultFormatter
+from src.entity.services.two_cell_solver import TwoCellSolver, solution
 from tests.entity.conftest import GRID_G2, GRID_G3, GRID_STEP_A_SUCCESS
 
 
@@ -83,7 +83,7 @@ class TestTwoCellSolverBehavior:
         small, large = 1, 6
 
         attempt_one = solver._filled_grid(grid_g2, blanks[0], small, blanks[1], large)
-        from magic_square.entity.services.magic_square_validator import is_magic_square
+        from src.entity.services.magic_square_validator import is_magic_square
 
         assert is_magic_square(attempt_one) is False
         assert solution(grid_g2) == [3, 3, 6, 4, 4, 1]

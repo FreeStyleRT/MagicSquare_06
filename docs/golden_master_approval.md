@@ -7,7 +7,7 @@
 | **기준 파일** | `tests/golden_master_expected.txt` |
 | **캡처 방식** | `ResolveUseCase.execute()` → Result DTO serialize |
 | **생성 스크립트** | `scripts/generate_golden_master.py` |
-| **pytest 진입점 (GM-2)** | `tests/boundary/test_golden_master_magic_square.py` |
+| **pytest 진입점 (GM-2)** | `tests/boundary/test_golden_master_src.py` |
 | **pytest 마커** | `@pytest.mark.golden_master` |
 
 ---
@@ -173,12 +173,12 @@ python scripts/generate_golden_master.py --check
 
 ```text
 $ python -m pytest -m golden_master -v
-tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-01] PASSED
-tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-02] PASSED
-tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-03] PASSED
-tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-04] PASSED
-tests/boundary/test_golden_master_magic_square.py::test_gm_tc_matches_golden_baseline[GM-TC-05] PASSED
-tests/boundary/test_golden_master_magic_square.py::test_golden_master_document_matches_baseline PASSED
+tests/boundary/test_golden_master_src.py::test_gm_tc_matches_golden_baseline[GM-TC-01] PASSED
+tests/boundary/test_golden_master_src.py::test_gm_tc_matches_golden_baseline[GM-TC-02] PASSED
+tests/boundary/test_golden_master_src.py::test_gm_tc_matches_golden_baseline[GM-TC-03] PASSED
+tests/boundary/test_golden_master_src.py::test_gm_tc_matches_golden_baseline[GM-TC-04] PASSED
+tests/boundary/test_golden_master_src.py::test_gm_tc_matches_golden_baseline[GM-TC-05] PASSED
+tests/boundary/test_golden_master_src.py::test_golden_master_document_matches_baseline PASSED
 ============================== 6 passed ==============================
 ```
 
@@ -204,7 +204,7 @@ tests/boundary/test_golden_master_magic_square.py::test_golden_master_document_m
 | 요구 | 구현 |
 |---|---|
 | GM-1 기준 파일 | `tests/golden_master_expected.txt` |
-| GM-2 테스트 | `tests/boundary/test_golden_master_magic_square.py` |
+| GM-2 테스트 | `tests/boundary/test_golden_master_src.py` |
 | approve 패턴 | `assert_golden_master`, `assert_golden_section`, `--golden-approve` |
 | 생성 스크립트 | `scripts/generate_golden_master.py` |
 | 시나리오 레지스트리 | `tests/helpers/golden_scenarios.py` |

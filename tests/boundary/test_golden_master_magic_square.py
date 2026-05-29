@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import pytest
 
-from magic_square.control.domain_resolver import DomainResolver
-from magic_square.control.resolve_use_case import ResolveUseCase
+from src.control.domain_resolver import DomainResolver
+from src.control.resolve_use_case import ResolveUseCase
 from tests.helpers.golden_master import (
     GOLDEN_MASTER_PATH,
     assert_golden_master,

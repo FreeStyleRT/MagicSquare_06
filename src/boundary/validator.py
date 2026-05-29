@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from magic_square.boundary.constants import (
+from src.boundary.constants import (
     CELL_MAX_VALUE,
     CELL_MIN_VALUE,
     GRID_DIMENSION,
     REQUIRED_BLANK_COUNT,
 )
-from magic_square.boundary.contracts import (
+from src.boundary.contracts import (
     FailureResponse,
     duplicate_non_zero_failure,
     invalid_blank_count_failure,
